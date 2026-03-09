@@ -1,0 +1,2168 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel — আসল গ্রামের মজা</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root {
+  --bg: #0f1117;
+  --bg2: #161b22;
+  --bg3: #1c2333;
+  --bg4: #21262d;
+  --border: #30363d;
+  --border2: #3d444d;
+  --green: #2ea043;
+  --green2: #3fb950;
+  --green3: #56d364;
+  --green-glow: rgba(46,160,67,.18);
+  --orange: #e8660a;
+  --orange2: #f07d2a;
+  --red: #da3633;
+  --red2: #f85149;
+  --yellow: #d29922;
+  --yellow2: #e3b341;
+  --blue: #1f6feb;
+  --blue2: #388bfd;
+  --purple: #8957e5;
+  --txt: #e6edf3;
+  --txt2: #8b949e;
+  --txt3: #484f58;
+  --accent: #2ea043;
+  --sidebar-w: 240px;
+  --header-h: 58px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Hind Siliguri', sans-serif; background: var(--bg); color: var(--txt); min-height: 100vh; overflow-x: hidden; }
+
+/* ══ SCROLLBAR ══ */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--txt3); }
+
+/* ══ LOGIN ══ */
+#loginPage {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+}
+#loginPage::before {
+  content: '';
+  position: absolute;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(46,160,67,.12) 0%, transparent 70%);
+  top: -200px; left: -200px;
+  pointer-events: none;
+}
+#loginPage::after {
+  content: '';
+  position: absolute;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(232,102,10,.08) 0%, transparent 70%);
+  bottom: -100px; right: -100px;
+  pointer-events: none;
+}
+.login-box {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 44px 40px;
+  width: 400px;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 24px 64px rgba(0,0,0,.6);
+}
+.login-logo {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.login-logo .logo-icon {
+  width: 64px; height: 64px;
+  background: linear-gradient(135deg, var(--green), #1a5c2a);
+  border-radius: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  margin-bottom: 14px;
+  box-shadow: 0 8px 24px var(--green-glow);
+}
+.login-logo h1 { font-size: 1.3rem; font-weight: 700; color: var(--txt); }
+.login-logo p { font-size: .8rem; color: var(--txt2); margin-top: 4px; }
+.form-group { margin-bottom: 18px; }
+.form-group label { display: block; font-size: .82rem; font-weight: 600; color: var(--txt2); margin-bottom: 7px; }
+.form-group input {
+  width: 100%;
+  background: var(--bg3);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 11px 14px;
+  color: var(--txt);
+  font-family: inherit;
+  font-size: .9rem;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.form-group input:focus { border-color: var(--green); box-shadow: 0 0 0 3px var(--green-glow); }
+.form-group input::placeholder { color: var(--txt3); }
+.btn-login {
+  width: 100%;
+  background: linear-gradient(135deg, var(--green), #1e7a30);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-family: inherit;
+  font-size: .92rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .2s;
+  margin-top: 6px;
+  letter-spacing: .3px;
+}
+.btn-login:hover { background: linear-gradient(135deg, var(--green2), var(--green)); transform: translateY(-1px); box-shadow: 0 8px 20px var(--green-glow); }
+.login-err { background: rgba(218,54,51,.12); border: 1px solid var(--red); border-radius: 7px; padding: 10px 14px; font-size: .82rem; color: var(--red2); margin-top: 14px; display: none; text-align: center; }
+.login-err.show { display: block; }
+
+/* ══ LAYOUT ══ */
+#appLayout { display: none; min-height: 100vh; }
+.sidebar {
+  position: fixed;
+  left: 0; top: 0; bottom: 0;
+  width: var(--sidebar-w);
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  transition: transform .3s;
+}
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.sidebar-logo .sl-icon {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--green), #1a5c2a);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+.sidebar-logo .sl-text { font-size: .82rem; font-weight: 700; color: var(--txt); line-height: 1.2; }
+.sidebar-logo .sl-text span { display: block; color: var(--green2); font-size: .7rem; font-weight: 400; }
+.sidebar-nav { flex: 1; overflow-y: auto; padding: 10px 0; }
+.nav-section-label { font-size: .65rem; font-weight: 700; color: var(--txt3); text-transform: uppercase; letter-spacing: 1.2px; padding: 12px 18px 5px; }
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 18px;
+  cursor: pointer;
+  transition: all .15s;
+  border-radius: 0;
+  margin: 1px 8px;
+  border-radius: 7px;
+  color: var(--txt2);
+  font-size: .88rem;
+  font-weight: 500;
+  text-decoration: none;
+  position: relative;
+}
+.nav-item:hover { background: var(--bg3); color: var(--txt); }
+.nav-item.active { background: var(--green-glow); color: var(--green3); font-weight: 700; }
+.nav-item.active::before { content: ''; position: absolute; left: 0; top: 4px; bottom: 4px; width: 3px; background: var(--green); border-radius: 0 3px 3px 0; left: -8px; }
+.nav-item i { width: 18px; text-align: center; font-size: .82rem; flex-shrink: 0; }
+.nav-badge { margin-left: auto; background: var(--orange); color: #fff; font-size: .6rem; font-weight: 700; padding: 2px 7px; border-radius: 20px; min-width: 20px; text-align: center; }
+.nav-badge.green { background: var(--green); }
+.sidebar-footer { padding: 14px; border-top: 1px solid var(--border); flex-shrink: 0; }
+.admin-info { display: flex; align-items: center; gap: 9px; }
+.admin-avatar { width: 34px; height: 34px; background: linear-gradient(135deg, var(--green), #1a5c2a); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .85rem; flex-shrink: 0; }
+.admin-name { font-size: .82rem; font-weight: 700; color: var(--txt); }
+.admin-role { font-size: .68rem; color: var(--txt2); }
+.btn-logout { margin-left: auto; background: none; border: none; color: var(--txt3); cursor: pointer; font-size: .88rem; padding: 6px; border-radius: 6px; transition: all .15s; }
+.btn-logout:hover { background: rgba(218,54,51,.15); color: var(--red2); }
+
+/* ══ TOPBAR ══ */
+.topbar {
+  position: fixed;
+  left: var(--sidebar-w);
+  right: 0;
+  top: 0;
+  height: var(--header-h);
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 16px;
+  z-index: 99;
+}
+.page-title { font-size: 1.05rem; font-weight: 700; color: var(--txt); }
+.page-sub { font-size: .78rem; color: var(--txt2); margin-top: 1px; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.topbar-stat { display: flex; align-items: center; gap: 6px; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 7px 12px; font-size: .78rem; color: var(--txt2); }
+.topbar-stat .val { font-weight: 700; color: var(--txt); font-size: .82rem; }
+.topbar-stat .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
+.btn-primary { background: var(--green); color: #fff; border: none; padding: 8px 16px; border-radius: 7px; cursor: pointer; font-family: inherit; font-size: .82rem; font-weight: 700; display: flex; align-items: center; gap: 6px; transition: all .2s; white-space: nowrap; }
+.btn-primary:hover { background: var(--green2); transform: translateY(-1px); }
+.btn-secondary { background: var(--bg3); color: var(--txt); border: 1px solid var(--border); padding: 8px 14px; border-radius: 7px; cursor: pointer; font-family: inherit; font-size: .82rem; display: flex; align-items: center; gap: 6px; transition: all .15s; white-space: nowrap; }
+.btn-secondary:hover { border-color: var(--border2); background: var(--bg4); }
+.btn-danger { background: rgba(218,54,51,.15); color: var(--red2); border: 1px solid rgba(218,54,51,.3); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-family: inherit; font-size: .78rem; display: flex; align-items: center; gap: 5px; transition: all .15s; }
+.btn-danger:hover { background: var(--red); color: #fff; border-color: var(--red); }
+.btn-warning { background: rgba(210,153,34,.12); color: var(--yellow2); border: 1px solid rgba(210,153,34,.3); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-family: inherit; font-size: .78rem; display: flex; align-items: center; gap: 5px; transition: all .15s; }
+.btn-warning:hover { background: var(--yellow); color: #fff; border-color: var(--yellow); }
+.btn-sm { padding: 5px 10px; font-size: .74rem; }
+
+/* ══ MAIN CONTENT ══ */
+.main-content {
+  margin-left: var(--sidebar-w);
+  margin-top: var(--header-h);
+  padding: 24px;
+  min-height: calc(100vh - var(--header-h));
+}
+
+/* ══ PAGES ══ */
+.page-view { display: none; }
+.page-view.active { display: block; }
+
+/* ══ DASHBOARD ══ */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.stat-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .2s, transform .2s;
+}
+.stat-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+.stat-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: 12px 12px 0 0;
+}
+.stat-card.green::after { background: var(--green); }
+.stat-card.orange::after { background: var(--orange); }
+.stat-card.blue::after { background: var(--blue); }
+.stat-card.purple::after { background: var(--purple); }
+.stat-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; }
+.stat-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+.stat-icon.green { background: var(--green-glow); color: var(--green3); }
+.stat-icon.orange { background: rgba(232,102,10,.15); color: var(--orange2); }
+.stat-icon.blue { background: rgba(31,111,235,.15); color: var(--blue2); }
+.stat-icon.purple { background: rgba(137,87,229,.15); color: var(--purple); }
+.stat-val { font-size: 1.8rem; font-weight: 700; color: var(--txt); line-height: 1; }
+.stat-lbl { font-size: .78rem; color: var(--txt2); margin-top: 4px; }
+.stat-change { font-size: .72rem; font-weight: 600; display: flex; align-items: center; gap: 3px; margin-top: 8px; }
+.stat-change.up { color: var(--green2); }
+.stat-change.neutral { color: var(--txt2); }
+
+.chart-grid { display: grid; grid-template-columns: 1fr 280px; gap: 16px; margin-bottom: 24px; }
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.card-header h3 { font-size: .92rem; font-weight: 700; color: var(--txt); display: flex; align-items: center; gap: 8px; }
+.card-body { padding: 20px; }
+.chart-bar-wrap { display: flex; flex-direction: column; gap: 14px; }
+.chart-bar-item { display: flex; align-items: center; gap: 10px; }
+.chart-bar-lbl { font-size: .74rem; color: var(--txt2); width: 80px; flex-shrink: 0; text-align: right; }
+.chart-bar-outer { flex: 1; height: 8px; background: var(--bg3); border-radius: 4px; overflow: hidden; }
+.chart-bar-inner { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--green), var(--green3)); transition: width 1s ease; }
+.chart-bar-val { font-size: .72rem; font-weight: 700; color: var(--txt); width: 60px; flex-shrink: 0; font-family: 'JetBrains Mono', monospace; }
+
+/* ══ TABLE ══ */
+.table-wrap { overflow-x: auto; }
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th { background: var(--bg3); color: var(--txt2); font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.data-table td { padding: 11px 14px; border-bottom: 1px solid var(--border); color: var(--txt); font-size: .84rem; vertical-align: middle; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tbody tr { transition: background .12s; }
+.data-table tbody tr:hover { background: var(--bg3); }
+.td-img { display: flex; align-items: center; gap: 10px; }
+.td-img img { width: 38px; height: 38px; object-fit: cover; border-radius: 6px; border: 1px solid var(--border); flex-shrink: 0; }
+.td-img-em { width: 38px; height: 38px; background: var(--bg3); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+.td-name { font-weight: 600; color: var(--txt); }
+.td-sub { font-size: .72rem; color: var(--txt2); margin-top: 1px; }
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: .7rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.badge.green { background: rgba(46,160,67,.15); color: var(--green3); border: 1px solid rgba(46,160,67,.3); }
+.badge.orange { background: rgba(232,102,10,.15); color: var(--orange2); border: 1px solid rgba(232,102,10,.3); }
+.badge.red { background: rgba(218,54,51,.15); color: var(--red2); border: 1px solid rgba(218,54,51,.3); }
+.badge.yellow { background: rgba(210,153,34,.15); color: var(--yellow2); border: 1px solid rgba(210,153,34,.3); }
+.badge.blue { background: rgba(31,111,235,.15); color: var(--blue2); border: 1px solid rgba(31,111,235,.3); }
+.badge.purple { background: rgba(137,87,229,.15); color: var(--purple); border: 1px solid rgba(137,87,229,.3); }
+.badge.gray { background: var(--bg3); color: var(--txt2); border: 1px solid var(--border); }
+.td-actions { display: flex; align-items: center; gap: 6px; }
+.icon-btn {
+  width: 30px; height: 30px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  color: var(--txt2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .75rem;
+  transition: all .15s;
+}
+.icon-btn:hover { border-color: var(--border2); color: var(--txt); }
+.icon-btn.edit:hover { border-color: var(--blue); color: var(--blue2); background: rgba(31,111,235,.1); }
+.icon-btn.del:hover { border-color: var(--red); color: var(--red2); background: rgba(218,54,51,.1); }
+.icon-btn.toggle:hover { border-color: var(--green); color: var(--green2); background: var(--green-glow); }
+.icon-btn.star:hover { border-color: var(--yellow); color: var(--yellow2); background: rgba(210,153,34,.1); }
+.icon-btn.active-icon { color: var(--green2); border-color: rgba(46,160,67,.4); }
+.icon-btn.star-active { color: var(--yellow2); border-color: rgba(210,153,34,.4); }
+
+/* ══ FILTERS ══ */
+.filters-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+.search-input {
+  background: var(--bg2);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 14px 9px 36px;
+  color: var(--txt);
+  font-family: inherit;
+  font-size: .85rem;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  min-width: 220px;
+}
+.search-input:focus { border-color: var(--green); box-shadow: 0 0 0 3px var(--green-glow); }
+.search-input::placeholder { color: var(--txt3); }
+.search-wrap { position: relative; }
+.search-wrap i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--txt3); font-size: .8rem; pointer-events: none; }
+.select-filter {
+  background: var(--bg2);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 9px 12px;
+  color: var(--txt);
+  font-family: inherit;
+  font-size: .84rem;
+  cursor: pointer;
+  outline: none;
+  transition: border-color .2s;
+}
+.select-filter:focus { border-color: var(--green); }
+.select-filter option { background: var(--bg2); }
+.filter-count { margin-left: auto; font-size: .78rem; color: var(--txt2); background: var(--bg3); border: 1px solid var(--border); padding: 5px 12px; border-radius: 6px; }
+
+/* ══ MODAL ══ */
+.modal-ov {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.7);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s;
+  backdrop-filter: blur(4px);
+}
+.modal-ov.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 640px;
+  max-height: 90vh;
+  overflow-y: auto;
+  transform: translateY(20px) scale(.97);
+  transition: transform .25s;
+  box-shadow: 0 24px 64px rgba(0,0,0,.7);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border2) var(--bg2);
+}
+.modal-ov.open .modal { transform: none; }
+.modal.wide { max-width: 820px; }
+.modal-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--bg2);
+  z-index: 10;
+}
+.modal-hd h2 { font-size: .98rem; font-weight: 700; color: var(--txt); display: flex; align-items: center; gap: 8px; }
+.modal-cls { background: none; border: none; color: var(--txt2); font-size: 1rem; cursor: pointer; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: all .15s; }
+.modal-cls:hover { background: rgba(218,54,51,.15); color: var(--red2); }
+.modal-body { padding: 22px; }
+.modal-footer { padding: 16px 22px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; background: var(--bg2); position: sticky; bottom: 0; }
+
+/* ══ FORM ══ */
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-group2 { margin-bottom: 18px; }
+.form-group2 label { display: block; font-size: .8rem; font-weight: 700; color: var(--txt2); margin-bottom: 7px; text-transform: uppercase; letter-spacing: .5px; }
+.form-group2 label span { color: var(--red2); margin-left: 2px; font-size: .7rem; }
+.form-control {
+  width: 100%;
+  background: var(--bg3);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 13px;
+  color: var(--txt);
+  font-family: inherit;
+  font-size: .87rem;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.form-control:focus { border-color: var(--green); box-shadow: 0 0 0 3px var(--green-glow); }
+.form-control::placeholder { color: var(--txt3); }
+.form-control option { background: var(--bg3); }
+textarea.form-control { resize: vertical; min-height: 80px; }
+.form-hint { font-size: .72rem; color: var(--txt2); margin-top: 5px; }
+.toggle-switch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: .86rem;
+  color: var(--txt);
+  user-select: none;
+}
+.toggle-track {
+  width: 40px; height: 22px;
+  background: var(--bg3);
+  border: 1.5px solid var(--border);
+  border-radius: 11px;
+  position: relative;
+  transition: all .2s;
+  flex-shrink: 0;
+}
+.toggle-track.on { background: var(--green); border-color: var(--green); }
+.toggle-thumb {
+  position: absolute;
+  left: 2px; top: 2px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  transition: left .2s;
+}
+.toggle-track.on .toggle-thumb { left: 20px; }
+
+/* ══ IMAGE UPLOAD ══ */
+.img-upload-area {
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s;
+  position: relative;
+}
+.img-upload-area:hover, .img-upload-area.drag { border-color: var(--green); background: var(--green-glow); }
+.img-upload-area i { font-size: 1.8rem; color: var(--txt3); margin-bottom: 8px; display: block; }
+.img-upload-area p { font-size: .82rem; color: var(--txt2); }
+.img-upload-area input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.img-preview { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.img-prev-item {
+  position: relative;
+  width: 72px; height: 72px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1.5px solid var(--border);
+  flex-shrink: 0;
+}
+.img-prev-item img { width: 100%; height: 100%; object-fit: cover; }
+.img-prev-rm {
+  position: absolute;
+  top: 2px; right: 2px;
+  width: 18px; height: 18px;
+  background: var(--red);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .55rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .15s;
+}
+.img-prev-item:hover .img-prev-rm { opacity: 1; }
+.uploading-overlay { position: absolute; inset: 0; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; font-size: .78rem; color: #fff; border-radius: 8px; }
+
+/* ══ VARIANTS ══ */
+.variants-list { display: flex; flex-direction: column; gap: 10px; }
+.variant-item {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+.variant-item input { background: var(--bg4); border: 1px solid var(--border); border-radius: 6px; padding: 7px 10px; color: var(--txt); font-family: inherit; font-size: .82rem; outline: none; width: 100%; transition: border-color .2s; }
+.variant-item input:focus { border-color: var(--green); }
+.variant-item input::placeholder { color: var(--txt3); }
+.add-variant-btn { display: flex; align-items: center; gap: 6px; color: var(--green2); background: none; border: 1px dashed rgba(46,160,67,.4); border-radius: 7px; padding: 8px 14px; cursor: pointer; font-family: inherit; font-size: .82rem; font-weight: 600; transition: all .2s; width: 100%; justify-content: center; margin-top: 6px; }
+.add-variant-btn:hover { background: var(--green-glow); border-color: var(--green); }
+
+/* ══ HIGHLIGHTS ══ */
+.highlights-list { display: flex; flex-direction: column; gap: 7px; }
+.highlight-item { display: flex; gap: 8px; align-items: center; }
+.highlight-item input { flex: 1; background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; color: var(--txt); font-family: inherit; font-size: .84rem; outline: none; transition: border-color .2s; }
+.highlight-item input:focus { border-color: var(--green); }
+
+/* ══ STATUS BADGE ══ */
+.status-select {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 10px;
+  color: var(--txt);
+  font-family: inherit;
+  font-size: .78rem;
+  cursor: pointer;
+  outline: none;
+}
+
+/* ══ PAGINATION ══ */
+.pagination { display: flex; align-items: center; gap: 6px; margin-top: 18px; justify-content: center; }
+.pg-btn { width: 34px; height: 34px; border-radius: 7px; border: 1px solid var(--border); background: var(--bg2); color: var(--txt2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: .82rem; transition: all .15s; }
+.pg-btn:hover { border-color: var(--green); color: var(--green2); }
+.pg-btn.active { background: var(--green); border-color: var(--green); color: #fff; font-weight: 700; }
+.pg-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ══ TOAST ══ */
+.toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+.toast-item {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 13px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 280px;
+  max-width: 380px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.5);
+  transform: translateX(120%);
+  transition: transform .3s ease;
+  font-size: .84rem;
+  color: var(--txt);
+}
+.toast-item.show { transform: none; }
+.toast-item.success { border-left: 3px solid var(--green); }
+.toast-item.error { border-left: 3px solid var(--red); }
+.toast-item.info { border-left: 3px solid var(--blue); }
+.toast-item i { font-size: 1rem; flex-shrink: 0; }
+.toast-item.success i { color: var(--green2); }
+.toast-item.error i { color: var(--red2); }
+.toast-item.info i { color: var(--blue2); }
+
+/* ══ LOADING ══ */
+.loader { text-align: center; padding: 48px; color: var(--txt2); }
+.loader i { font-size: 1.8rem; color: var(--green); animation: spin 1s linear infinite; margin-bottom: 10px; display: block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.empty-state { text-align: center; padding: 60px 20px; color: var(--txt2); }
+.empty-state i { font-size: 2.5rem; color: var(--txt3); margin-bottom: 12px; display: block; }
+.empty-state h3 { font-size: 1rem; color: var(--txt); margin-bottom: 6px; }
+.empty-state p { font-size: .82rem; }
+
+/* ══ ORDER DETAIL ══ */
+.order-items-list { display: flex; flex-direction: column; gap: 8px; }
+.order-item-row { display: flex; align-items: center; gap: 10px; padding: 10px; background: var(--bg3); border-radius: 8px; }
+.order-item-img { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
+.order-item-em { width: 40px; height: 40px; background: var(--bg4); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; flex-shrink: 0; }
+.order-timeline { display: flex; flex-direction: column; gap: 0; }
+.timeline-item { display: flex; gap: 12px; position: relative; padding-bottom: 16px; }
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); flex-shrink: 0; margin-top: 5px; position: relative; z-index: 1; }
+.timeline-item::before { content: ''; position: absolute; left: 4px; top: 12px; bottom: 0; width: 2px; background: var(--border); }
+.timeline-item:last-child::before { display: none; }
+.timeline-info { flex: 1; }
+.timeline-status { font-size: .84rem; font-weight: 700; color: var(--txt); text-transform: capitalize; }
+.timeline-note { font-size: .74rem; color: var(--txt2); margin-top: 2px; }
+.timeline-time { font-size: .68rem; color: var(--txt3); margin-top: 2px; font-family: 'JetBrains Mono', monospace; }
+
+/* ══ CONFIRM DIALOG ══ */
+.confirm-modal { max-width: 400px; }
+.confirm-icon { text-align: center; padding: 20px 0 10px; font-size: 2.5rem; }
+.confirm-msg { text-align: center; font-size: .9rem; color: var(--txt2); margin-bottom: 6px; }
+.confirm-name { text-align: center; font-weight: 700; color: var(--txt); font-size: .92rem; }
+
+/* ══ SETTINGS ══ */
+.settings-section { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 20px; }
+.settings-section-hd { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+.settings-section-hd h3 { font-size: .9rem; font-weight: 700; color: var(--txt); }
+.settings-body { padding: 20px; }
+.settings-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.settings-row:last-child { border-bottom: none; }
+.settings-info label { font-size: .86rem; font-weight: 600; color: var(--txt); }
+.settings-info p { font-size: .74rem; color: var(--txt2); margin-top: 2px; }
+
+/* ══ RESPONSIVE ══ */
+@media (max-width: 1024px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .chart-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  :root { --sidebar-w: 0px; }
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.mobile-open { transform: none; --sidebar-w: 240px; width: 240px; }
+  .topbar { left: 0; }
+  .main-content { margin-left: 0; padding: 16px; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+}
+.mobile-menu-btn { display: none; background: none; border: none; color: var(--txt2); font-size: 1.1rem; cursor: pointer; padding: 6px; }
+@media (max-width: 768px) { .mobile-menu-btn { display: flex; } }
+
+/* ══ CATEGORY PAGE ══ */
+.cat-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
+.cat-card { background: var(--bg2); border: 1.5px solid var(--border); border-radius: 10px; padding: 18px; cursor: pointer; transition: all .2s; display: flex; flex-direction: column; gap: 10px; }
+.cat-card:hover { border-color: var(--green); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.3); }
+.cat-em { font-size: 2rem; }
+.cat-nm { font-size: .88rem; font-weight: 700; color: var(--txt); }
+.cat-cnt { font-size: .74rem; color: var(--txt2); }
+.cat-actions { display: flex; gap: 6px; margin-top: 4px; }
+
+/* progress bar */
+.progress-bar { height: 4px; background: var(--bg3); border-radius: 2px; overflow: hidden; margin-top: 6px; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--green), var(--green3)); border-radius: 2px; transition: width .6s ease; }
+</style>
+</head>
+<body>
+
+<!-- ═══ LOGIN PAGE ═══ -->
+<div id="loginPage">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="logo-icon">🏡</div>
+      <h1>আসল গ্রামের মজা</h1>
+      <p>Admin Panel — সুরক্ষিত লগইন</p>
+    </div>
+    <div class="form-group">
+      <label>ইউজারনেম</label>
+      <input type="text" id="loginUser" placeholder="admin" autocomplete="username">
+    </div>
+    <div class="form-group">
+      <label>পাসওয়ার্ড</label>
+      <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn-login" onclick="doLogin()">
+      <i class="fa-solid fa-right-to-bracket"></i> লগইন করুন
+    </button>
+    <div class="login-err" id="loginErr">ইউজারনেম বা পাসওয়ার্ড ভুল!</div>
+  </div>
+</div>
+
+<!-- ═══ APP LAYOUT ═══ -->
+<div id="appLayout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sl-icon">🏡</div>
+      <div class="sl-text">আসল গ্রামের মজা <span>Admin Panel v1.0</span></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">প্রধান মেনু</div>
+      <div class="nav-item active" onclick="navTo('dashboard')" data-page="dashboard">
+        <i class="fa-solid fa-chart-pie"></i> ড্যাশবোর্ড
+      </div>
+      <div class="nav-item" onclick="navTo('orders')" data-page="orders">
+        <i class="fa-solid fa-bag-shopping"></i> অর্ডার
+        <span class="nav-badge" id="pendingBadge">0</span>
+      </div>
+      <div class="nav-section-label">কনটেন্ট</div>
+      <div class="nav-item" onclick="navTo('products')" data-page="products">
+        <i class="fa-solid fa-box-open"></i> পণ্য ম্যানেজ
+      </div>
+      <div class="nav-item" onclick="navTo('categories')" data-page="categories">
+        <i class="fa-solid fa-tags"></i> ক্যাটাগরি
+      </div>
+      <div class="nav-item" onclick="navTo('hero')" data-page="hero">
+        <i class="fa-solid fa-images"></i> হিরো স্লাইড
+      </div>
+      <div class="nav-section-label">সিস্টেম</div>
+      <div class="nav-item" onclick="navTo('settings')" data-page="settings">
+        <i class="fa-solid fa-gear"></i> সেটিংস
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="admin-info">
+        <div class="admin-avatar">👤</div>
+        <div>
+          <div class="admin-name" id="adminNameDisp">Admin</div>
+          <div class="admin-role">Super Admin</div>
+        </div>
+        <button class="btn-logout" onclick="doLogout()" title="লগআউট">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <button class="mobile-menu-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+    <div>
+      <div class="page-title" id="topbarTitle">ড্যাশবোর্ড</div>
+      <div class="page-sub" id="topbarSub">সামগ্রিক পরিসংখ্যান</div>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-stat" id="dbStatus">
+        <span class="dot"></span>
+        <span>DB: <span class="val">connected</span></span>
+      </div>
+      <div class="topbar-stat">
+        <i class="fa-regular fa-clock" style="color:var(--txt3)"></i>
+        <span class="val" id="clockDisp">—</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- ─── DASHBOARD ─── -->
+    <div class="page-view active" id="page-dashboard">
+      <div class="stats-grid" id="statsGrid">
+        <div class="loader"><i class="fa-solid fa-spinner"></i></div>
+      </div>
+      <div class="chart-grid">
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fa-solid fa-chart-line" style="color:var(--green)"></i> মাসিক রাজস্ব</h3>
+          </div>
+          <div class="card-body">
+            <div class="chart-bar-wrap" id="monthlyChart">
+              <div class="loader"><i class="fa-solid fa-spinner"></i></div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3><i class="fa-solid fa-layer-group" style="color:var(--orange)"></i> ক্যাটাগরি</h3>
+          </div>
+          <div class="card-body">
+            <div class="chart-bar-wrap" id="catChart">
+              <div class="loader"><i class="fa-solid fa-spinner"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <h3><i class="fa-solid fa-clock-rotate-left" style="color:var(--yellow)"></i> সাম্প্রতিক অর্ডার</h3>
+          <button class="btn-secondary btn-sm" onclick="navTo('orders')">সব দেখুন</button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" id="recentOrdersTable">
+            <thead><tr><th>অর্ডার নং</th><th>গ্রাহক</th><th>মোট</th><th>স্ট্যাটাস</th><th>তারিখ</th></tr></thead>
+            <tbody id="recentOrdersBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── PRODUCTS ─── -->
+    <div class="page-view" id="page-products">
+      <div class="filters-bar">
+        <div class="search-wrap">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" class="search-input" id="prodSearch" placeholder="পণ্য খুঁজুন..." oninput="filterProds()">
+        </div>
+        <select class="select-filter" id="prodCatFilter" onchange="filterProds()">
+          <option value="">সব ক্যাটাগরি</option>
+        </select>
+        <select class="select-filter" id="prodActiveFilter" onchange="filterProds()">
+          <option value="">সব স্ট্যাটাস</option>
+          <option value="true">সক্রিয়</option>
+          <option value="false">নিষ্ক্রিয়</option>
+        </select>
+        <select class="select-filter" id="prodBestFilter" onchange="filterProds()">
+          <option value="">সব পণ্য</option>
+          <option value="true">বেস্ট সেলার</option>
+        </select>
+        <span class="filter-count" id="prodCount">0 পণ্য</span>
+        <button class="btn-primary" onclick="openProdModal()">
+          <i class="fa-solid fa-plus"></i> নতুন পণ্য
+        </button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>#</th><th>পণ্য</th><th>ক্যাটাগরি</th><th>মূল্য</th><th>বেস্ট সেলার</th><th>স্ট্যাটাস</th><th>অ্যাকশন</th></tr></thead>
+            <tbody id="prodTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="pagination" id="prodPagination"></div>
+    </div>
+
+    <!-- ─── ORDERS ─── -->
+    <div class="page-view" id="page-orders">
+      <div class="filters-bar">
+        <div class="search-wrap">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" class="search-input" id="orderSearch" placeholder="অর্ডার নং / নাম / ফোন..." oninput="debounce(loadOrders,400)()">
+        </div>
+        <select class="select-filter" id="orderStatusFilter" onchange="loadOrders()">
+          <option value="all">সব স্ট্যাটাস</option>
+          <option value="pending">Pending</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="processing">Processing</option>
+          <option value="shipped">Shipped</option>
+          <option value="delivered">Delivered</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <span class="filter-count" id="orderCount">0 অর্ডার</span>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>অর্ডার নং</th><th>গ্রাহক</th><th>পণ্য</th><th>মোট</th><th>ডেলিভারি</th><th>স্ট্যাটাস</th><th>তারিখ</th><th>অ্যাকশন</th></tr></thead>
+            <tbody id="orderTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="pagination" id="orderPagination"></div>
+    </div>
+
+    <!-- ─── CATEGORIES ─── -->
+    <div class="page-view" id="page-categories">
+      <div class="filters-bar">
+        <span class="filter-count" id="catCount">0 ক্যাটাগরি</span>
+        <button class="btn-primary" onclick="openCatModal()">
+          <i class="fa-solid fa-plus"></i> নতুন ক্যাটাগরি
+        </button>
+      </div>
+      <div class="cat-cards" id="catCards"></div>
+    </div>
+
+    <!-- ─── HERO ─── -->
+    <div class="page-view" id="page-hero">
+      <div class="filters-bar">
+        <button class="btn-primary" onclick="openHeroModal()">
+          <i class="fa-solid fa-plus"></i> নতুন স্লাইড
+        </button>
+      </div>
+      <div class="card">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>ক্রম</th><th>শিরোনাম</th><th>সাবটাইটেল</th><th>গ্র্যাডিয়েন্ট</th><th>স্ট্যাটাস</th><th>অ্যাকশন</th></tr></thead>
+            <tbody id="heroTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── SETTINGS ─── -->
+    <div class="page-view" id="page-settings">
+      <div class="settings-section">
+        <div class="settings-section-hd"><i class="fa-solid fa-store" style="color:var(--green)"></i><h3>স্টোর তথ্য</h3></div>
+        <div class="settings-body">
+          <div class="form-row">
+            <div class="form-group2"><label>স্টোর নাম</label><input type="text" class="form-control" id="storeNameInp" placeholder="আসল গ্রামের মজা"></div>
+            <div class="form-group2"><label>ফোন নম্বর</label><input type="text" class="form-control" id="storePhoneInp" placeholder="01712345678"></div>
+          </div>
+          <div class="form-group2"><label>ঠিকানা</label><textarea class="form-control" id="storeAddressInp" rows="2"></textarea></div>
+          <div class="form-row">
+            <div class="form-group2"><label>ফেসবুক URL</label><input type="text" class="form-control" id="fbUrlInp" placeholder="https://facebook.com/..."></div>
+            <div class="form-group2"><label>ইন্সটাগ্রাম URL</label><input type="text" class="form-control" id="igUrlInp" placeholder="https://instagram.com/..."></div>
+          </div>
+          <button class="btn-primary" onclick="saveStoreSettings()"><i class="fa-solid fa-floppy-disk"></i> সংরক্ষণ করুন</button>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-hd"><i class="fa-solid fa-truck" style="color:var(--orange)"></i><h3>ডেলিভারি সেটিংস</h3></div>
+        <div class="settings-body">
+          <div class="form-row">
+            <div class="form-group2"><label>ঢাকার ভিতরে চার্জ (৳)</label><input type="number" class="form-control" id="dlivInside" placeholder="80"></div>
+            <div class="form-group2"><label>ঢাকার বাহিরে চার্জ (৳)</label><input type="number" class="form-control" id="dlivOutside" placeholder="130"></div>
+          </div>
+          <div class="form-group2"><label>ফ্রি ডেলিভারির ন্যূনতম পরিমাণ (৳)</label><input type="number" class="form-control" id="freeDlivMin" placeholder="0 = বন্ধ"></div>
+          <button class="btn-primary" onclick="saveDeliverySettings()"><i class="fa-solid fa-floppy-disk"></i> সংরক্ষণ করুন</button>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-hd"><i class="fa-solid fa-lock" style="color:var(--purple)"></i><h3>পাসওয়ার্ড পরিবর্তন</h3></div>
+        <div class="settings-body">
+          <div class="form-row">
+            <div class="form-group2"><label>বর্তমান পাসওয়ার্ড</label><input type="password" class="form-control" id="curPassInp"></div>
+            <div class="form-group2"><label>নতুন পাসওয়ার্ড</label><input type="password" class="form-control" id="newPassInp"></div>
+          </div>
+          <button class="btn-primary" onclick="changePassword()"><i class="fa-solid fa-key"></i> পরিবর্তন করুন</button>
+        </div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-hd"><i class="fa-solid fa-database" style="color:var(--blue)"></i><h3>সিস্টেম ও ডেটা</h3></div>
+        <div class="settings-body">
+          <div class="settings-row">
+            <div class="settings-info"><label>ডেমো ডেটা সিড করুন</label><p>ক্যাটাগরি ও হিরো স্লাইডের প্রাথমিক ডেটা যোগ করুন</p></div>
+            <button class="btn-secondary" onclick="seedData()"><i class="fa-solid fa-seedling"></i> Seed Data</button>
+          </div>
+          <div class="settings-row">
+            <div class="settings-info"><label>API URL</label><p id="apiUrlDisp" style="font-family:'JetBrains Mono',monospace;font-size:.74rem;"></p></div>
+            <button class="btn-secondary" onclick="document.getElementById('apiUrlInput').style.display=document.getElementById('apiUrlInput').style.display==='none'?'block':'none'"><i class="fa-solid fa-edit"></i> পরিবর্তন</button>
+          </div>
+          <div id="apiUrlInput" style="display:none;margin-top:10px;">
+            <div class="form-group2"><label>Backend API URL</label><input type="text" class="form-control" id="apiUrlInp" placeholder="https://your-backend.onrender.com"></div>
+            <button class="btn-primary" onclick="saveApiUrl()"><i class="fa-solid fa-floppy-disk"></i> সংরক্ষণ করুন</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ═══ PRODUCT MODAL ═══ -->
+<div class="modal-ov" id="prodModal">
+  <div class="modal wide">
+    <div class="modal-hd">
+      <h2 id="prodModalTitle"><i class="fa-solid fa-box-open" style="color:var(--green)"></i> পণ্য যোগ করুন</h2>
+      <button class="modal-cls" onclick="closeModal('prodModal')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="prodId">
+      <div class="form-row">
+        <div class="form-group2">
+          <label>পণ্যের নাম <span>*</span></label>
+          <input type="text" class="form-control" id="pNm" placeholder="যেমন: সরিষার ফুলের মধু">
+        </div>
+        <div class="form-group2">
+          <label>ক্যাটাগরি <span>*</span></label>
+          <select class="form-control" id="pCat">
+            <option value="">নির্বাচন করুন</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group2">
+          <label>সাবটাইটেল</label>
+          <input type="text" class="form-control" id="pSub" placeholder="সংক্ষিপ্ত বিবরণ">
+        </div>
+        <div class="form-group2">
+          <label>ইমোজি</label>
+          <input type="text" class="form-control" id="pEm" placeholder="🍯" maxlength="4">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group2">
+          <label>কার্ড ব্যাকগ্রাউন্ড কালার</label>
+          <input type="text" class="form-control" id="pBg" placeholder="#c8a55a">
+        </div>
+        <div class="form-group2">
+          <label>ফোন নম্বর</label>
+          <input type="text" class="form-control" id="pPhone" placeholder="01712345678">
+        </div>
+      </div>
+      
+      <!-- Main Image -->
+      <div class="form-group2">
+        <label>মূল ছবি</label>
+        <div class="img-upload-area" id="mainImgArea" onclick="document.getElementById('mainImgInput').click()">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+          <p>ক্লিক করুন বা ড্র্যাগ করুন (max 5MB)</p>
+          <input type="file" id="mainImgInput" accept="image/*" onchange="uploadMainImg(this)">
+        </div>
+        <div id="mainImgPreview"></div>
+        <input type="hidden" id="pImg">
+        <input type="hidden" id="pImgPid">
+      </div>
+
+      <!-- Thumb Images -->
+      <div class="form-group2">
+        <label>গ্যালারি ছবি (সর্বোচ্চ ৪টি)</label>
+        <div class="img-upload-area" onclick="document.getElementById('thumbImgsInput').click()">
+          <i class="fa-solid fa-images"></i>
+          <p>একসাথে ৪টি পর্যন্ত ছবি আপলোড করুন</p>
+          <input type="file" id="thumbImgsInput" accept="image/*" multiple onchange="uploadThumbImgs(this)">
+        </div>
+        <div class="img-preview" id="thumbImgPreview"></div>
+        <input type="hidden" id="pImgs" value="[]">
+        <input type="hidden" id="pImgsPids" value="[]">
+      </div>
+
+      <!-- Description -->
+      <div class="form-group2">
+        <label>পণ্যের বিবরণ</label>
+        <textarea class="form-control" id="pDesc" rows="3" placeholder="পণ্যটি সম্পর্কে বিস্তারিত লিখুন..."></textarea>
+      </div>
+
+      <!-- Highlights -->
+      <div class="form-group2">
+        <label>হাইলাইটস</label>
+        <div class="highlights-list" id="highlightsList"></div>
+        <button type="button" class="add-variant-btn" onclick="addHighlight('')" style="margin-top:8px">
+          <i class="fa-solid fa-plus"></i> হাইলাইট যোগ করুন
+        </button>
+      </div>
+
+      <!-- Variants -->
+      <div class="form-group2">
+        <label>ভেরিয়েন্ট / মূল্য <span>*</span></label>
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px;padding:6px 0;margin-bottom:4px;">
+          <span style="font-size:.7rem;color:var(--txt3);padding-left:4px;">লেবেল</span>
+          <span style="font-size:.7rem;color:var(--txt3);">মূল্য (৳)</span>
+          <span style="font-size:.7rem;color:var(--txt3);">পুরনো মূল্য</span>
+          <span style="font-size:.7rem;color:var(--txt3);">ছাড় টেক্সট</span>
+          <span></span>
+        </div>
+        <div class="variants-list" id="variantsList"></div>
+        <button type="button" class="add-variant-btn" onclick="addVariant()">
+          <i class="fa-solid fa-plus"></i> ভেরিয়েন্ট যোগ করুন
+        </button>
+      </div>
+
+      <!-- Toggles -->
+      <div class="form-row" style="margin-top:8px;">
+        <div class="form-group2">
+          <label>বেস্ট সেলার</label>
+          <label class="toggle-switch" onclick="toggleProdField('pBest')">
+            <div class="toggle-track" id="pBestTrack"><div class="toggle-thumb"></div></div>
+            <span id="pBestLbl">না</span>
+          </label>
+          <input type="hidden" id="pBest" value="false">
+        </div>
+        <div class="form-group2">
+          <label>সক্রিয় / প্রকাশিত</label>
+          <label class="toggle-switch" onclick="toggleProdField('pActive')">
+            <div class="toggle-track on" id="pActiveTrack"><div class="toggle-thumb"></div></div>
+            <span id="pActiveLbl">হ্যাঁ</span>
+          </label>
+          <input type="hidden" id="pActive" value="true">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('prodModal')">বাতিল</button>
+      <button class="btn-primary" onclick="saveProd()" id="saveProdBtn">
+        <i class="fa-solid fa-floppy-disk"></i> সংরক্ষণ করুন
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CATEGORY MODAL ═══ -->
+<div class="modal-ov" id="catModal">
+  <div class="modal">
+    <div class="modal-hd">
+      <h2 id="catModalTitle"><i class="fa-solid fa-tag" style="color:var(--orange)"></i> ক্যাটাগরি যোগ করুন</h2>
+      <button class="modal-cls" onclick="closeModal('catModal')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="catId">
+      <div class="form-row">
+        <div class="form-group2"><label>ক্যাটাগরি ID <span>*</span></label><input type="text" class="form-control" id="cId" placeholder="মধু"></div>
+        <div class="form-group2"><label>লেবেল <span>*</span></label><input type="text" class="form-control" id="cLbl" placeholder="মধু"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group2"><label>ইমোজি</label><input type="text" class="form-control" id="cEm" placeholder="🍯" maxlength="4"></div>
+        <div class="form-group2"><label>ক্রম নম্বর</label><input type="number" class="form-control" id="cOrder" placeholder="1"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('catModal')">বাতিল</button>
+      <button class="btn-primary" onclick="saveCat()"><i class="fa-solid fa-floppy-disk"></i> সংরক্ষণ করুন</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ HERO MODAL ═══ -->
+<div class="modal-ov" id="heroModal">
+  <div class="modal">
+    <div class="modal-hd">
+      <h2 id="heroModalTitle"><i class="fa-solid fa-image" style="color:var(--blue)"></i> হিরো স্লাইড</h2>
+      <button class="modal-cls" onclick="closeModal('heroModal')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="heroId">
+      <div class="form-group2"><label>শিরোনাম <span>*</span></label><input type="text" class="form-control" id="hTitle" placeholder="হিরো শিরোনাম"></div>
+      <div class="form-group2"><label>সাবটাইটেল</label><input type="text" class="form-control" id="hSub" placeholder="সাবটাইটেল"></div>
+      <div class="form-row">
+        <div class="form-group2">
+          <label>গ্র্যাডিয়েন্ট</label>
+          <select class="form-control" id="hGradient">
+            <option value="s1">সবুজ (s1)</option>
+            <option value="s2">কমলা/বাদামি (s2)</option>
+            <option value="s3">নীল (s3)</option>
+          </select>
+        </div>
+        <div class="form-group2"><label>ক্রম নম্বর</label><input type="number" class="form-control" id="hOrder" placeholder="1"></div>
+      </div>
+      <div class="form-group2">
+        <label>সক্রিয়</label>
+        <label class="toggle-switch" onclick="toggleHeroActive()">
+          <div class="toggle-track on" id="hActiveTrack"><div class="toggle-thumb"></div></div>
+          <span id="hActiveLbl">হ্যাঁ</span>
+        </label>
+        <input type="hidden" id="hActive" value="true">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('heroModal')">বাতিল</button>
+      <button class="btn-primary" onclick="saveHero()"><i class="fa-solid fa-floppy-disk"></i> সংরক্ষণ করুন</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ORDER DETAIL MODAL ═══ -->
+<div class="modal-ov" id="orderModal">
+  <div class="modal wide">
+    <div class="modal-hd">
+      <h2><i class="fa-solid fa-bag-shopping" style="color:var(--orange)"></i> অর্ডার বিস্তারিত</h2>
+      <button class="modal-cls" onclick="closeModal('orderModal')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body" id="orderDetailBody"></div>
+  </div>
+</div>
+
+<!-- ═══ CONFIRM MODAL ═══ -->
+<div class="modal-ov" id="confirmModal">
+  <div class="modal confirm-modal">
+    <div class="modal-body">
+      <div class="confirm-icon" id="confirmIcon">🗑️</div>
+      <div class="confirm-msg" id="confirmMsg">আপনি কি নিশ্চিত?</div>
+      <div class="confirm-name" id="confirmName"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('confirmModal')">না, বাতিল</button>
+      <button class="btn-danger" id="confirmOkBtn"><i class="fa-solid fa-trash"></i> হ্যাঁ, মুছুন</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+/* ════════════════════════════════
+   ADMIN PANEL CORE
+════════════════════════════════ */
+
+// ─── API CONFIG ───
+let API = localStorage.getItem('adminApiUrl') || 'https://your-backend.onrender.com';
+let TOKEN = localStorage.getItem('adminToken') || '';
+
+const api = async (method, path, body, isFormData = false) => {
+  const opts = {
+    method,
+    headers: { 'Authorization': `Bearer ${TOKEN}` },
+  };
+  if (body && !isFormData) {
+    opts.headers['Content-Type'] = 'application/json';
+    opts.body = JSON.stringify(body);
+  } else if (body && isFormData) {
+    opts.body = body;
+  }
+  try {
+    const res = await fetch(API + path, opts);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'API Error');
+    return data;
+  } catch (err) {
+    throw err;
+  }
+};
+
+// ─── STATE ───
+let currentPage = 'dashboard';
+let prodPage = 1;
+let orderPage = 1;
+let allProds = [];
+let allCats = [];
+let pendingOrderCount = 0;
+let uploadedMainImg = null;
+let uploadedThumbImgs = [];
+
+// ─── AUTH ───
+function isLoggedIn() { return !!TOKEN; }
+
+async function doLogin() {
+  const username = document.getElementById('loginUser').value.trim();
+  const password = document.getElementById('loginPass').value.trim();
+  if (!username || !password) { showLoginErr('সব ঘর পূরণ করুন'); return; }
+  
+  const btn = document.querySelector('.btn-login');
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> লোড হচ্ছে...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(API + '/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    TOKEN = data.token;
+    localStorage.setItem('adminToken', TOKEN);
+    document.getElementById('adminNameDisp').textContent = data.admin.name || 'Admin';
+    showApp();
+  } catch (err) {
+    showLoginErr(err.message || 'লগইন ব্যর্থ হয়েছে');
+  } finally {
+    btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> লগইন করুন';
+    btn.disabled = false;
+  }
+}
+
+function showLoginErr(msg) {
+  const el = document.getElementById('loginErr');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 4000);
+}
+
+function doLogout() {
+  TOKEN = '';
+  localStorage.removeItem('adminToken');
+  document.getElementById('appLayout').style.display = 'none';
+  document.getElementById('loginPage').style.display = 'flex';
+}
+
+function showApp() {
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('appLayout').style.display = 'flex';
+  loadDashboard();
+  loadCategoriesForFilter();
+  checkHealth();
+}
+
+// ─── NAVIGATION ───
+function navTo(page) {
+  currentPage = page;
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.page === page));
+  document.querySelectorAll('.page-view').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  
+  const titles = { dashboard: ['ড্যাশবোর্ড', 'সামগ্রিক পরিসংখ্যান'], products: ['পণ্য ম্যানেজ', 'সকল পণ্য দেখুন ও সম্পাদনা করুন'], orders: ['অর্ডার', 'সকল অর্ডার ট্র্যাক করুন'], categories: ['ক্যাটাগরি', 'পণ্যের বিভাগ পরিচালনা করুন'], hero: ['হিরো স্লাইড', 'হোমপেজের ব্যানার পরিচালনা করুন'], settings: ['সেটিংস', 'স্টোর কনফিগারেশন'] };
+  const [title, sub] = titles[page] || ['Admin', ''];
+  document.getElementById('topbarTitle').textContent = title;
+  document.getElementById('topbarSub').textContent = sub;
+
+  if (page === 'dashboard') loadDashboard();
+  if (page === 'products') loadProducts();
+  if (page === 'orders') loadOrders();
+  if (page === 'categories') loadCategories();
+  if (page === 'hero') loadHero();
+  if (page === 'settings') loadSettings();
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('mobile-open');
+}
+
+// ─── CLOCK ───
+setInterval(() => {
+  const now = new Date();
+  document.getElementById('clockDisp').textContent = now.toLocaleTimeString('bn-BD');
+}, 1000);
+
+// ─── HEALTH CHECK ───
+async function checkHealth() {
+  try {
+    const res = await fetch(API + '/api/health');
+    const data = await res.json();
+    const el = document.getElementById('dbStatus');
+    if (data.db === 'connected') {
+      el.innerHTML = '<span class="dot"></span><span>DB: <span class="val">connected</span></span>';
+    } else {
+      el.innerHTML = '<span class="dot" style="background:var(--red);box-shadow:0 0 6px var(--red)"></span><span>DB: <span class="val" style="color:var(--red2)">disconnected</span></span>';
+    }
+  } catch { }
+}
+setInterval(checkHealth, 30000);
+
+// ─── DASHBOARD ───
+async function loadDashboard() {
+  try {
+    const data = await api('GET', '/api/dashboard/stats');
+    
+    // Stats
+    document.getElementById('statsGrid').innerHTML = `
+      <div class="stat-card green">
+        <div class="stat-top">
+          <div><div class="stat-val">${data.totalProducts}</div><div class="stat-lbl">মোট পণ্য</div></div>
+          <div class="stat-icon green"><i class="fa-solid fa-box-open"></i></div>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(data.totalProducts*3,100)}%"></div></div>
+      </div>
+      <div class="stat-card orange">
+        <div class="stat-top">
+          <div><div class="stat-val">${data.totalOrders}</div><div class="stat-lbl">মোট অর্ডার</div></div>
+          <div class="stat-icon orange"><i class="fa-solid fa-bag-shopping"></i></div>
+        </div>
+        <div class="progress-bar" style="background:rgba(232,102,10,.1)"><div class="progress-fill" style="width:60%;background:linear-gradient(90deg,var(--orange),var(--orange2))"></div></div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-top">
+          <div><div class="stat-val">${data.pendingOrders}</div><div class="stat-lbl">পেন্ডিং অর্ডার</div></div>
+          <div class="stat-icon blue"><i class="fa-solid fa-clock-rotate-left"></i></div>
+        </div>
+        <div class="stat-change ${data.pendingOrders>0?'up':'neutral'}">${data.pendingOrders>0?'⚠️ মনোযোগ প্রয়োজন':'✓ সব ঠিক আছে'}</div>
+      </div>
+      <div class="stat-card purple">
+        <div class="stat-top">
+          <div><div class="stat-val">৳${data.totalRevenue.toLocaleString('en')}</div><div class="stat-lbl">মোট রাজস্ব</div></div>
+          <div class="stat-icon purple"><i class="fa-solid fa-bangladeshi-taka-sign"></i></div>
+        </div>
+        <div class="stat-change up"><i class="fa-solid fa-arrow-trend-up"></i> সংগৃহীত রাজস্ব</div>
+      </div>`;
+
+    // Update pending badge
+    pendingOrderCount = data.pendingOrders;
+    document.getElementById('pendingBadge').textContent = pendingOrderCount;
+
+    // Monthly chart
+    const months = ['জানু', 'ফেব্রু', 'মার্চ', 'এপ্রি', 'মে', 'জুন', 'জুলা', 'আগস্ট', 'সেপ্ট', 'অক্টো', 'নভে', 'ডিসে'];
+    const maxRev = Math.max(...(data.monthlyData.map(m => m.revenue)), 1);
+    document.getElementById('monthlyChart').innerHTML = data.monthlyData.length ? 
+      data.monthlyData.map(m => `
+        <div class="chart-bar-item">
+          <span class="chart-bar-lbl">${months[m._id.month-1]} ${m._id.year}</span>
+          <div class="chart-bar-outer"><div class="chart-bar-inner" style="width:${(m.revenue/maxRev*100).toFixed(1)}%"></div></div>
+          <span class="chart-bar-val">৳${m.revenue.toLocaleString('en')}</span>
+        </div>`).join('') 
+      : '<div style="color:var(--txt2);font-size:.82rem;text-align:center;padding:20px">কোনো ডেটা নেই</div>';
+
+    // Cat chart
+    const maxCat = Math.max(...(data.catDist.map(c => c.count)), 1);
+    document.getElementById('catChart').innerHTML = data.catDist.map(c => `
+      <div class="chart-bar-item">
+        <span class="chart-bar-lbl">${c._id}</span>
+        <div class="chart-bar-outer"><div class="chart-bar-inner" style="width:${(c.count/maxCat*100).toFixed(1)}%;background:linear-gradient(90deg,var(--orange),var(--orange2))"></div></div>
+        <span class="chart-bar-val">${c.count}</span>
+      </div>`).join('');
+
+    // Recent orders
+    document.getElementById('recentOrdersBody').innerHTML = data.recentOrders.length ?
+      data.recentOrders.map(o => `
+        <tr>
+          <td><span style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--green2)">${o.orderNum}</span></td>
+          <td><div class="td-name">${o.customer.name}</div><div class="td-sub">${o.customer.phone}</div></td>
+          <td><strong>৳${o.total.toLocaleString('en')}</strong></td>
+          <td>${statusBadge(o.status)}</td>
+          <td style="font-size:.74rem;color:var(--txt2)">${timeAgo(o.createdAt)}</td>
+        </tr>`).join('')
+      : '<tr><td colspan="5" class="empty-state"><i class="fa-solid fa-inbox"></i><p>কোনো অর্ডার নেই</p></td></tr>';
+  } catch (err) {
+    toast('ড্যাশবোর্ড লোড ব্যর্থ: ' + err.message, 'error');
+  }
+}
+
+// ─── PRODUCTS ───
+async function loadCategoriesForFilter() {
+  try {
+    allCats = await api('GET', '/api/categories/all');
+    // Fill cat filter
+    const catFilter = document.getElementById('prodCatFilter');
+    catFilter.innerHTML = '<option value="">সব ক্যাটাগরি</option>' + allCats.map(c => `<option value="${c.id}">${c.em} ${c.lbl}</option>`).join('');
+    // Fill prod modal cat select
+    const pCat = document.getElementById('pCat');
+    pCat.innerHTML = '<option value="">নির্বাচন করুন</option>' + allCats.map(c => `<option value="${c.id}">${c.em} ${c.lbl}</option>`).join('');
+  } catch {}
+}
+
+async function loadProducts() {
+  const search = document.getElementById('prodSearch').value;
+  const cat = document.getElementById('prodCatFilter').value;
+  const active = document.getElementById('prodActiveFilter').value;
+  const best = document.getElementById('prodBestFilter').value;
+  
+  const tbody = document.getElementById('prodTableBody');
+  tbody.innerHTML = '<tr><td colspan="7"><div class="loader"><i class="fa-solid fa-spinner"></i><p>লোড হচ্ছে...</p></div></td></tr>';
+
+  try {
+    let url = `/api/products?page=${prodPage}&limit=15`;
+    if (cat) url += `&cat=${encodeURIComponent(cat)}`;
+    if (active) url += `&active=${active}`;
+    if (best) url += `&best=${best}`;
+    
+    const res = await api('GET', url);
+    allProds = res.products;
+
+    // Client-side search filter
+    let filtered = allProds;
+    if (search) filtered = allProds.filter(p => p.nm.includes(search) || p.sub?.includes(search));
+
+    document.getElementById('prodCount').textContent = `${filtered.length} পণ্য`;
+
+    if (!filtered.length) {
+      tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><i class="fa-solid fa-box-open"></i><h3>কোনো পণ্য নেই</h3><p>নতুন পণ্য যোগ করুন</p></div></td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = filtered.map((p, i) => {
+      const bp = p.variants?.[0]?.p || 0;
+      const bo = p.variants?.[0]?.op;
+      return `<tr>
+        <td style="color:var(--txt3);font-size:.74rem">${(prodPage-1)*15+i+1}</td>
+        <td>
+          <div class="td-img">
+            ${p.img ? `<img src="${p.img}" alt="${p.nm}" onerror="this.style.display='none'">` : `<div class="td-img-em">${p.em}</div>`}
+            <div><div class="td-name">${p.nm}</div><div class="td-sub">${p.sub || ''}</div></div>
+          </div>
+        </td>
+        <td><span class="badge orange">${p.em} ${p.cat}</span></td>
+        <td>
+          <strong>৳${bp.toLocaleString('en')}</strong>
+          ${bo ? `<br><span style="font-size:.7rem;color:var(--txt3);text-decoration:line-through">৳${bo.toLocaleString('en')}</span>` : ''}
+        </td>
+        <td>
+          <button class="icon-btn star ${p.best?'star-active':''}" onclick="toggleBest('${p._id}',this)" title="${p.best?'বেস্ট সেলার সরান':'বেস্ট সেলার করুন'}">
+            <i class="fa-solid fa-star"></i>
+          </button>
+        </td>
+        <td>
+          <button class="icon-btn toggle ${p.active?'active-icon':''}" onclick="toggleProd('${p._id}',this)" title="${p.active?'নিষ্ক্রিয় করুন':'সক্রিয় করুন'}">
+            <i class="fa-solid fa-${p.active?'eye':'eye-slash'}"></i>
+          </button>
+        </td>
+        <td>
+          <div class="td-actions">
+            <button class="icon-btn edit" onclick="editProd('${p._id}')" title="সম্পাদনা"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button class="icon-btn del" onclick="deleteProd('${p._id}','${p.nm.replace(/'/g,'')}')" title="মুছুন"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+
+    // Pagination
+    renderPagination('prodPagination', res.total, 15, prodPage, (pg) => { prodPage = pg; loadProducts(); });
+  } catch (err) {
+    toast('পণ্য লোড ব্যর্থ: ' + err.message, 'error');
+  }
+}
+
+function filterProds() { prodPage = 1; loadProducts(); }
+
+function openProdModal(prod = null) {
+  // Reset
+  document.getElementById('prodId').value = '';
+  document.getElementById('pNm').value = '';
+  document.getElementById('pCat').value = '';
+  document.getElementById('pSub').value = '';
+  document.getElementById('pEm').value = '🛒';
+  document.getElementById('pBg').value = '#c8a55a';
+  document.getElementById('pPhone').value = '01712345678';
+  document.getElementById('pDesc').value = '';
+  document.getElementById('pImg').value = '';
+  document.getElementById('pImgPid').value = '';
+  document.getElementById('pImgs').value = '[]';
+  document.getElementById('pImgsPids').value = '[]';
+  document.getElementById('pBest').value = 'false';
+  document.getElementById('pActive').value = 'true';
+  document.getElementById('pBestTrack').className = 'toggle-track';
+  document.getElementById('pActiveTrack').className = 'toggle-track on';
+  document.getElementById('pBestLbl').textContent = 'না';
+  document.getElementById('pActiveLbl').textContent = 'হ্যাঁ';
+  document.getElementById('mainImgPreview').innerHTML = '';
+  document.getElementById('thumbImgPreview').innerHTML = '';
+  document.getElementById('prodModalTitle').innerHTML = '<i class="fa-solid fa-plus" style="color:var(--green)"></i> নতুন পণ্য যোগ করুন';
+  uploadedMainImg = null;
+  uploadedThumbImgs = [];
+  
+  if (prod) {
+    document.getElementById('prodModalTitle').innerHTML = '<i class="fa-solid fa-pen-to-square" style="color:var(--blue)"></i> পণ্য সম্পাদনা করুন';
+    document.getElementById('prodId').value = prod._id;
+    document.getElementById('pNm').value = prod.nm || '';
+    document.getElementById('pCat').value = prod.cat || '';
+    document.getElementById('pSub').value = prod.sub || '';
+    document.getElementById('pEm').value = prod.em || '🛒';
+    document.getElementById('pBg').value = prod.bg || '#c8a55a';
+    document.getElementById('pPhone').value = prod.phone || '';
+    document.getElementById('pDesc').value = prod.desc || '';
+    document.getElementById('pImg').value = prod.img || '';
+    document.getElementById('pImgPid').value = prod.imgPublicId || '';
+    document.getElementById('pImgs').value = JSON.stringify(prod.imgs || []);
+    document.getElementById('pImgsPids').value = JSON.stringify(prod.imgsPublicIds || []);
+    
+    if (prod.img) {
+      document.getElementById('mainImgPreview').innerHTML = `<div class="img-preview" style="margin-top:10px"><div class="img-prev-item"><img src="${prod.img}" alt="main"></div></div>`;
+    }
+    if (prod.imgs?.length) {
+      document.getElementById('thumbImgPreview').innerHTML = prod.imgs.map(u => `<div class="img-prev-item"><img src="${u}" alt="thumb"></div>`).join('');
+    }
+    
+    const isBest = prod.best === true;
+    const isActive = prod.active !== false;
+    document.getElementById('pBest').value = String(isBest);
+    document.getElementById('pActive').value = String(isActive);
+    document.getElementById('pBestTrack').className = 'toggle-track ' + (isBest ? 'on' : '');
+    document.getElementById('pActiveTrack').className = 'toggle-track ' + (isActive ? 'on' : '');
+    document.getElementById('pBestLbl').textContent = isBest ? 'হ্যাঁ' : 'না';
+    document.getElementById('pActiveLbl').textContent = isActive ? 'হ্যাঁ' : 'না';
+    
+    renderVariants(prod.variants || []);
+    renderHighlights(prod.highlights || []);
+  } else {
+    renderVariants([{ lbl: '', p: '', op: '', disc: '' }]);
+    renderHighlights(['']);
+  }
+  
+  openModal('prodModal');
+}
+
+function renderVariants(variants) {
+  document.getElementById('variantsList').innerHTML = variants.map((v, i) => `
+    <div class="variant-item" id="var-${i}">
+      <input type="text" placeholder="যেমন: 1 বোতল (500g)" value="${v.lbl || ''}" data-field="lbl" data-idx="${i}">
+      <input type="number" placeholder="মূল্য" value="${v.p || ''}" data-field="p" data-idx="${i}">
+      <input type="number" placeholder="পুরনো" value="${v.op || ''}" data-field="op" data-idx="${i}">
+      <input type="text" placeholder="যেমন: 5% ছাড়" value="${v.disc || ''}" data-field="disc" data-idx="${i}">
+      <button class="icon-btn del" onclick="removeVariant(${i})" title="সরান"><i class="fa-solid fa-trash"></i></button>
+    </div>`).join('');
+}
+
+function addVariant() {
+  const list = document.getElementById('variantsList');
+  const count = list.querySelectorAll('.variant-item').length;
+  const div = document.createElement('div');
+  div.className = 'variant-item';
+  div.id = 'var-' + count;
+  div.innerHTML = `
+    <input type="text" placeholder="লেবেল" data-field="lbl" data-idx="${count}">
+    <input type="number" placeholder="মূল্য" data-field="p" data-idx="${count}">
+    <input type="number" placeholder="পুরনো" data-field="op" data-idx="${count}">
+    <input type="text" placeholder="ছাড় টেক্সট" data-field="disc" data-idx="${count}">
+    <button class="icon-btn del" onclick="removeVariant(${count})" title="সরান"><i class="fa-solid fa-trash"></i></button>`;
+  list.appendChild(div);
+}
+
+function removeVariant(idx) {
+  const el = document.getElementById('var-' + idx);
+  if (el) el.remove();
+}
+
+function renderHighlights(highlights) {
+  document.getElementById('highlightsList').innerHTML = highlights.map((h, i) => `
+    <div class="highlight-item" id="hl-${i}">
+      <input type="text" placeholder="হাইলাইট পয়েন্ট" value="${h}" id="hlInp-${i}">
+      <button class="icon-btn del" onclick="removeHighlight(${i})"><i class="fa-solid fa-minus"></i></button>
+    </div>`).join('');
+}
+
+function addHighlight(val = '') {
+  const list = document.getElementById('highlightsList');
+  const count = list.querySelectorAll('.highlight-item').length;
+  const div = document.createElement('div');
+  div.className = 'highlight-item';
+  div.id = 'hl-' + count;
+  div.innerHTML = `
+    <input type="text" placeholder="হাইলাইট পয়েন্ট" value="${val}" id="hlInp-${count}">
+    <button class="icon-btn del" onclick="removeHighlight(${count})"><i class="fa-solid fa-minus"></i></button>`;
+  list.appendChild(div);
+}
+
+function removeHighlight(idx) {
+  const el = document.getElementById('hl-' + idx);
+  if (el) el.remove();
+}
+
+function getVariants() {
+  const items = document.querySelectorAll('#variantsList .variant-item');
+  const result = [];
+  items.forEach(item => {
+    const lbl = item.querySelector('[data-field="lbl"]')?.value?.trim();
+    const p = parseFloat(item.querySelector('[data-field="p"]')?.value) || 0;
+    const op = parseFloat(item.querySelector('[data-field="op"]')?.value) || null;
+    const disc = item.querySelector('[data-field="disc"]')?.value?.trim();
+    if (lbl && p) result.push({ lbl, p, op: op || undefined, disc: disc || undefined });
+  });
+  return result;
+}
+
+function getHighlights() {
+  const items = document.querySelectorAll('#highlightsList input');
+  return [...items].map(i => i.value.trim()).filter(Boolean);
+}
+
+function toggleProdField(id) {
+  const cur = document.getElementById(id).value === 'true';
+  document.getElementById(id).value = String(!cur);
+  document.getElementById(id + 'Track').className = 'toggle-track ' + (!cur ? 'on' : '');
+  document.getElementById(id + 'Lbl').textContent = !cur ? 'হ্যাঁ' : 'না';
+}
+
+async function uploadMainImg(input) {
+  if (!input.files[0]) return;
+  const formData = new FormData();
+  formData.append('image', input.files[0]);
+  const preview = document.getElementById('mainImgPreview');
+  preview.innerHTML = '<div style="padding:8px;font-size:.8rem;color:var(--txt2)"><i class="fa-solid fa-spinner fa-spin"></i> আপলোড হচ্ছে...</div>';
+  try {
+    const res = await api('POST', '/api/upload/product-image', formData, true);
+    document.getElementById('pImg').value = res.url;
+    document.getElementById('pImgPid').value = res.publicId;
+    preview.innerHTML = `<div class="img-preview" style="margin-top:10px"><div class="img-prev-item"><img src="${res.url}" alt="main"></div></div>`;
+    toast('ছবি আপলোড সফল', 'success');
+  } catch (err) {
+    preview.innerHTML = '';
+    toast('ছবি আপলোড ব্যর্থ: ' + err.message, 'error');
+  }
+}
+
+async function uploadThumbImgs(input) {
+  if (!input.files.length) return;
+  const formData = new FormData();
+  [...input.files].slice(0, 4).forEach(f => formData.append('images', f));
+  const preview = document.getElementById('thumbImgPreview');
+  preview.innerHTML = '<div style="padding:8px;font-size:.8rem;color:var(--txt2)"><i class="fa-solid fa-spinner fa-spin"></i> আপলোড হচ্ছে...</div>';
+  try {
+    const res = await api('POST', '/api/upload/product-thumbs', formData, true);
+    const urls = res.map(r => r.url);
+    const pids = res.map(r => r.publicId);
+    document.getElementById('pImgs').value = JSON.stringify(urls);
+    document.getElementById('pImgsPids').value = JSON.stringify(pids);
+    preview.innerHTML = urls.map(u => `<div class="img-prev-item"><img src="${u}" alt="thumb"></div>`).join('');
+    toast(`${res.length}টি ছবি আপলোড সফল`, 'success');
+  } catch (err) {
+    preview.innerHTML = '';
+    toast('ছবি আপলোড ব্যর্থ: ' + err.message, 'error');
+  }
+}
+
+async function saveProd() {
+  const nm = document.getElementById('pNm').value.trim();
+  const cat = document.getElementById('pCat').value;
+  if (!nm) { toast('পণ্যের নাম দিন', 'error'); return; }
+  if (!cat) { toast('ক্যাটাগরি নির্বাচন করুন', 'error'); return; }
+  const variants = getVariants();
+  if (!variants.length) { toast('কমপক্ষে একটি ভেরিয়েন্ট যোগ করুন', 'error'); return; }
+
+  const data = {
+    nm, cat,
+    sub: document.getElementById('pSub').value.trim(),
+    em: document.getElementById('pEm').value.trim() || '🛒',
+    bg: document.getElementById('pBg').value.trim(),
+    phone: document.getElementById('pPhone').value.trim(),
+    desc: document.getElementById('pDesc').value.trim(),
+    img: document.getElementById('pImg').value,
+    imgPublicId: document.getElementById('pImgPid').value,
+    imgs: JSON.parse(document.getElementById('pImgs').value || '[]'),
+    imgsPublicIds: JSON.parse(document.getElementById('pImgsPids').value || '[]'),
+    best: document.getElementById('pBest').value === 'true',
+    active: document.getElementById('pActive').value === 'true',
+    variants,
+    highlights: getHighlights(),
+  };
+
+  const id = document.getElementById('prodId').value;
+  const btn = document.getElementById('saveProdBtn');
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> সংরক্ষণ হচ্ছে...';
+  btn.disabled = true;
+
+  try {
+    if (id) await api('PUT', `/api/products/${id}`, data);
+    else await api('POST', '/api/products', data);
+    closeModal('prodModal');
+    toast(id ? 'পণ্য আপডেট সফল' : 'নতুন পণ্য যোগ সফল', 'success');
+    loadProducts();
+  } catch (err) {
+    toast('সংরক্ষণ ব্যর্থ: ' + err.message, 'error');
+  } finally {
+    btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> সংরক্ষণ করুন';
+    btn.disabled = false;
+  }
+}
+
+async function editProd(id) {
+  try {
+    const prod = await api('GET', `/api/products/${id}`);
+    await loadCategoriesForFilter();
+    openProdModal(prod);
+  } catch (err) {
+    toast('পণ্য লোড ব্যর্থ', 'error');
+  }
+}
+
+function deleteProd(id, name) {
+  showConfirm('🗑️', `"${name}" মুছে ফেলতে চান?`, 'এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।', async () => {
+    try {
+      await api('DELETE', `/api/products/${id}`);
+      toast('পণ্য মুছে ফেলা হয়েছে', 'success');
+      loadProducts();
+    } catch (err) {
+      toast('মুছতে ব্যর্থ: ' + err.message, 'error');
+    }
+  });
+}
+
+async function toggleProd(id, btn) {
+  try {
+    const prod = await api('PATCH', `/api/products/${id}/toggle`);
+    btn.className = 'icon-btn toggle ' + (prod.active ? 'active-icon' : '');
+    btn.innerHTML = `<i class="fa-solid fa-${prod.active ? 'eye' : 'eye-slash'}"></i>`;
+    toast(`পণ্য ${prod.active ? 'সক্রিয়' : 'নিষ্ক্রিয়'} করা হয়েছে`, 'success');
+  } catch (err) { toast('আপডেট ব্যর্থ', 'error'); }
+}
+
+async function toggleBest(id, btn) {
+  try {
+    const prod = await api('PATCH', `/api/products/${id}/best`);
+    btn.className = 'icon-btn star ' + (prod.best ? 'star-active' : '');
+    toast(`বেস্ট সেলার ${prod.best ? 'যোগ' : 'বাতিল'} করা হয়েছে`, 'success');
+  } catch (err) { toast('আপডেট ব্যর্থ', 'error'); }
+}
+
+// ─── ORDERS ───
+async function loadOrders() {
+  const search = document.getElementById('orderSearch').value.trim();
+  const status = document.getElementById('orderStatusFilter').value;
+  const tbody = document.getElementById('orderTableBody');
+  tbody.innerHTML = '<tr><td colspan="8"><div class="loader"><i class="fa-solid fa-spinner"></i><p>লোড হচ্ছে...</p></div></td></tr>';
+  try {
+    let url = `/api/orders?page=${orderPage}&limit=15&status=${status}`;
+    if (search) url += `&search=${encodeURIComponent(search)}`;
+    const res = await api('GET', url);
+    document.getElementById('orderCount').textContent = `${res.total} অর্ডার`;
+    
+    if (!res.orders.length) {
+      tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><i class="fa-solid fa-inbox"></i><h3>কোনো অর্ডার নেই</h3></div></td></tr>';
+      return;
+    }
+    
+    tbody.innerHTML = res.orders.map(o => `
+      <tr>
+        <td><span style="font-family:'JetBrains Mono',monospace;font-size:.76rem;color:var(--green2)">${o.orderNum}</span></td>
+        <td><div class="td-name">${o.customer.name}</div><div class="td-sub">${o.customer.phone}</div></td>
+        <td><div class="td-sub">${(o.items||[]).length} আইটেম</div></td>
+        <td><strong>৳${(o.total||0).toLocaleString('en')}</strong></td>
+        <td style="font-size:.78rem;color:var(--txt2)">${o.delivery?.type || '—'}<br>${o.delivery?.charge ? `৳${o.delivery.charge}` : ''}</td>
+        <td>
+          <select class="status-select" onchange="updateOrderStatus('${o._id}',this.value)" style="border-color:${statusColor(o.status)}">
+            ${['pending','confirmed','processing','shipped','delivered','cancelled'].map(s => `<option value="${s}" ${o.status===s?'selected':''}>${s}</option>`).join('')}
+          </select>
+        </td>
+        <td style="font-size:.74rem;color:var(--txt2)">${timeAgo(o.createdAt)}</td>
+        <td><button class="icon-btn edit" onclick="viewOrder('${o._id}')" title="বিস্তারিত"><i class="fa-solid fa-eye"></i></button></td>
+      </tr>`).join('');
+
+    renderPagination('orderPagination', res.total, 15, orderPage, (pg) => { orderPage = pg; loadOrders(); });
+  } catch (err) {
+    toast('অর্ডার লোড ব্যর্থ: ' + err.message, 'error');
+  }
+}
+
+async function updateOrderStatus(id, status) {
+  try {
+    await api('PATCH', `/api/orders/${id}/status`, { status });
+    toast(`স্ট্যাটাস "${status}" আপডেট সফল`, 'success');
+    if (status === 'pending') pendingOrderCount++;
+    else pendingOrderCount = Math.max(0, pendingOrderCount - 1);
+    document.getElementById('pendingBadge').textContent = pendingOrderCount;
+  } catch (err) { toast('আপডেট ব্যর্থ', 'error'); }
+}
+
+async function viewOrder(id) {
+  try {
+    const o = await api('GET', `/api/orders/${id}`);
+    document.getElementById('orderDetailBody').innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;">
+        <div class="card" style="border-radius:8px;">
+          <div class="card-header"><h3><i class="fa-solid fa-user" style="color:var(--blue)"></i> গ্রাহক তথ্য</h3></div>
+          <div class="card-body" style="padding:16px">
+            <div style="display:flex;flex-direction:column;gap:8px;font-size:.84rem">
+              <div><span style="color:var(--txt2)">নাম:</span> <strong>${o.customer.name}</strong></div>
+              <div><span style="color:var(--txt2)">ফোন:</span> <strong>${o.customer.phone}</strong></div>
+              <div><span style="color:var(--txt2)">ঠিকানা:</span> ${o.customer.address}</div>
+              ${o.customer.note ? `<div><span style="color:var(--txt2)">নোট:</span> ${o.customer.note}</div>` : ''}
+            </div>
+          </div>
+        </div>
+        <div class="card" style="border-radius:8px;">
+          <div class="card-header"><h3><i class="fa-solid fa-receipt" style="color:var(--orange)"></i> অর্ডার তথ্য</h3></div>
+          <div class="card-body" style="padding:16px">
+            <div style="display:flex;flex-direction:column;gap:8px;font-size:.84rem">
+              <div><span style="color:var(--txt2)">অর্ডার নং:</span> <span style="font-family:'JetBrains Mono',monospace;color:var(--green2)">${o.orderNum}</span></div>
+              <div><span style="color:var(--txt2)">পণ্য মূল্য:</span> <strong>৳${o.subtotal?.toLocaleString('en')}</strong></div>
+              <div><span style="color:var(--txt2)">ডেলিভারি:</span> <strong>৳${o.delivery?.charge || 0}</strong> (${o.delivery?.type || '—'})</div>
+              <div style="border-top:1px solid var(--border);padding-top:8px"><span style="color:var(--txt2)">সর্বমোট:</span> <strong style="color:var(--green2);font-size:1rem">৳${o.total?.toLocaleString('en')}</strong></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="border-radius:8px;margin-bottom:16px">
+        <div class="card-header"><h3><i class="fa-solid fa-box" style="color:var(--purple)"></i> পণ্য তালিকা</h3></div>
+        <div class="card-body" style="padding:14px">
+          <div class="order-items-list">
+            ${(o.items||[]).map(item => `
+              <div class="order-item-row">
+                ${item.img ? `<img class="order-item-img" src="${item.img}" alt="${item.nm}" onerror="this.style.display='none'">` : `<div class="order-item-em">${item.em||'📦'}</div>`}
+                <div style="flex:1"><div style="font-size:.86rem;font-weight:700">${item.nm}</div><div style="font-size:.74rem;color:var(--txt2)">${item.varLabel} × ${item.qty}</div></div>
+                <div style="font-weight:700;color:var(--green2)">৳${(item.cartPrice*item.qty).toLocaleString('en')}</div>
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>
+      <div class="card" style="border-radius:8px">
+        <div class="card-header"><h3><i class="fa-solid fa-timeline" style="color:var(--yellow)"></i> স্ট্যাটাস ইতিহাস</h3><div style="margin-left:auto">${statusBadge(o.status)}</div></h3></div>
+        <div class="card-body" style="padding:14px">
+          <div class="order-timeline">
+            ${(o.statusHistory||[]).reverse().map(h => `
+              <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-info">
+                  <div class="timeline-status">${h.status}</div>
+                  ${h.note ? `<div class="timeline-note">${h.note}</div>` : ''}
+                  <div class="timeline-time">${new Date(h.time).toLocaleString('bn-BD')}</div>
+                </div>
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>`;
+    openModal('orderModal');
+  } catch (err) {
+    toast('অর্ডার লোড ব্যর্থ', 'error');
+  }
+}
+
+// ─── CATEGORIES ───
+async function loadCategories() {
+  try {
+    const cats = await api('GET', '/api/categories/all');
+    document.getElementById('catCount').textContent = `${cats.length} ক্যাটাগরি`;
+    
+    if (!cats.length) {
+      document.getElementById('catCards').innerHTML = '<div class="empty-state"><i class="fa-solid fa-tags"></i><h3>কোনো ক্যাটাগরি নেই</h3><p>নতুন ক্যাটাগরি যোগ করুন</p></div>';
+      return;
+    }
+    
+    document.getElementById('catCards').innerHTML = cats.map(c => `
+      <div class="cat-card">
+        <div class="cat-em">${c.em}</div>
+        <div class="cat-nm">${c.lbl}</div>
+        <div class="cat-cnt">ID: ${c.id} · ক্রম: ${c.order}</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="badge ${c.active ? 'green' : 'red'}">${c.active ? 'সক্রিয়' : 'নিষ্ক্রিয়'}</span>
+        </div>
+        <div class="cat-actions">
+          <button class="icon-btn edit" onclick="editCat(${JSON.stringify(c).replace(/"/g,'&quot;')})" title="সম্পাদনা"><i class="fa-solid fa-pen-to-square"></i></button>
+          <button class="icon-btn del" onclick="deleteCat('${c._id}','${c.lbl}')" title="মুছুন"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </div>`).join('');
+  } catch (err) {
+    toast('ক্যাটাগরি লোড ব্যর্থ: ' + err.message, 'error');
+  }
+}
+
+function openCatModal(cat = null) {
+  document.getElementById('catId').value = cat ? cat._id : '';
+  document.getElementById('cId').value = cat ? cat.id : '';
+  document.getElementById('cLbl').value = cat ? cat.lbl : '';
+  document.getElementById('cEm').value = cat ? cat.em : '🛒';
+  document.getElementById('cOrder').value = cat ? cat.order : 1;
+  document.getElementById('catModalTitle').innerHTML = cat ? '<i class="fa-solid fa-pen-to-square" style="color:var(--blue)"></i> ক্যাটাগরি সম্পাদনা' : '<i class="fa-solid fa-tag" style="color:var(--orange)"></i> নতুন ক্যাটাগরি';
+  openModal('catModal');
+}
+
+function editCat(cat) { openCatModal(cat); }
+
+async function saveCat() {
+  const id = document.getElementById('catId').value;
+  const data = {
+    id: document.getElementById('cId').value.trim(),
+    lbl: document.getElementById('cLbl').value.trim(),
+    em: document.getElementById('cEm').value.trim() || '🛒',
+    order: parseInt(document.getElementById('cOrder').value) || 1,
+  };
+  if (!data.id || !data.lbl) { toast('ID ও লেবেল দিন', 'error'); return; }
+  try {
+    if (id) await api('PUT', `/api/categories/${id}`, data);
+    else await api('POST', '/api/categories', data);
+    closeModal('catModal');
+    toast(id ? 'ক্যাটাগরি আপডেট সফল' : 'ক্যাটাগরি যোগ সফল', 'success');
+    loadCategories();
+    loadCategoriesForFilter();
+  } catch (err) { toast('ত্রুটি: ' + err.message, 'error'); }
+}
+
+function deleteCat(id, name) {
+  showConfirm('🏷️', `"${name}" ক্যাটাগরি মুছবেন?`, 'এই ক্যাটাগরির পণ্যগুলো প্রভাবিত হবে না।', async () => {
+    try { await api('DELETE', `/api/categories/${id}`); toast('ক্যাটাগরি মুছে ফেলা হয়েছে', 'success'); loadCategories(); }
+    catch (err) { toast('মুছতে ব্যর্থ', 'error'); }
+  });
+}
+
+// ─── HERO ───
+async function loadHero() {
+  try {
+    const slides = await api('GET', '/api/hero/all');
+    const tbody = document.getElementById('heroTableBody');
+    if (!slides.length) {
+      tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><i class="fa-solid fa-images"></i><h3>কোনো স্লাইড নেই</h3></div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = slides.map((s, i) => `
+      <tr>
+        <td style="color:var(--txt3)">${s.order || i+1}</td>
+        <td><div class="td-name">${s.title}</div></td>
+        <td style="color:var(--txt2);font-size:.8rem">${s.subtitle || '—'}</td>
+        <td><span class="badge ${s.gradient==='s1'?'green':s.gradient==='s2'?'orange':'blue'}">${s.gradient}</span></td>
+        <td><span class="badge ${s.active?'green':'red'}">${s.active?'সক্রিয়':'নিষ্ক্রিয়'}</span></td>
+        <td>
+          <div class="td-actions">
+            <button class="icon-btn edit" onclick="editHero(${JSON.stringify(s).replace(/"/g,'&quot;')})" title="সম্পাদনা"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button class="icon-btn del" onclick="deleteHero('${s._id}')" title="মুছুন"><i class="fa-solid fa-trash"></i></button>
+          </div>
+        </td>
+      </tr>`).join('');
+  } catch (err) { toast('স্লাইড লোড ব্যর্থ', 'error'); }
+}
+
+function openHeroModal(slide = null) {
+  document.getElementById('heroId').value = slide ? slide._id : '';
+  document.getElementById('hTitle').value = slide ? slide.title : '';
+  document.getElementById('hSub').value = slide ? slide.subtitle : '';
+  document.getElementById('hGradient').value = slide ? slide.gradient : 's1';
+  document.getElementById('hOrder').value = slide ? slide.order : 1;
+  const isActive = slide ? slide.active !== false : true;
+  document.getElementById('hActive').value = String(isActive);
+  document.getElementById('hActiveTrack').className = 'toggle-track ' + (isActive ? 'on' : '');
+  document.getElementById('hActiveLbl').textContent = isActive ? 'হ্যাঁ' : 'না';
+  document.getElementById('heroModalTitle').innerHTML = slide ? '<i class="fa-solid fa-pen-to-square" style="color:var(--blue)"></i> স্লাইড সম্পাদনা' : '<i class="fa-solid fa-image" style="color:var(--blue)"></i> নতুন স্লাইড';
+  openModal('heroModal');
+}
+
+function editHero(slide) { openHeroModal(slide); }
+function toggleHeroActive() {
+  const cur = document.getElementById('hActive').value === 'true';
+  document.getElementById('hActive').value = String(!cur);
+  document.getElementById('hActiveTrack').className = 'toggle-track ' + (!cur ? 'on' : '');
+  document.getElementById('hActiveLbl').textContent = !cur ? 'হ্যাঁ' : 'না';
+}
+
+async function saveHero() {
+  const id = document.getElementById('heroId').value;
+  const data = {
+    title: document.getElementById('hTitle').value.trim(),
+    subtitle: document.getElementById('hSub').value.trim(),
+    gradient: document.getElementById('hGradient').value,
+    order: parseInt(document.getElementById('hOrder').value) || 1,
+    active: document.getElementById('hActive').value === 'true',
+  };
+  if (!data.title) { toast('শিরোনাম দিন', 'error'); return; }
+  try {
+    if (id) await api('PUT', `/api/hero/${id}`, data);
+    else await api('POST', '/api/hero', data);
+    closeModal('heroModal');
+    toast(id ? 'স্লাইড আপডেট সফল' : 'স্লাইড যোগ সফল', 'success');
+    loadHero();
+  } catch (err) { toast('ত্রুটি: ' + err.message, 'error'); }
+}
+
+async function deleteHero(id) {
+  showConfirm('🗑️', 'এই স্লাইডটি মুছবেন?', '', async () => {
+    try { await api('DELETE', `/api/hero/${id}`); toast('স্লাইড মুছে ফেলা হয়েছে', 'success'); loadHero(); }
+    catch { toast('মুছতে ব্যর্থ', 'error'); }
+  });
+}
+
+// ─── SETTINGS ───
+async function loadSettings() {
+  try {
+    const s = await api('GET', '/api/settings');
+    document.getElementById('storeNameInp').value = s.storeName || '';
+    document.getElementById('storePhoneInp').value = s.storePhone || '';
+    document.getElementById('storeAddressInp').value = s.storeAddress || '';
+    document.getElementById('fbUrlInp').value = s.fbUrl || '';
+    document.getElementById('igUrlInp').value = s.igUrl || '';
+    document.getElementById('dlivInside').value = s.deliveryInside || 80;
+    document.getElementById('dlivOutside').value = s.deliveryOutside || 130;
+    document.getElementById('freeDlivMin').value = s.freeDeliveryMin || 0;
+    document.getElementById('apiUrlDisp').textContent = API;
+    document.getElementById('apiUrlInp').value = API;
+  } catch {}
+}
+
+async function saveStoreSettings() {
+  try {
+    await api('PUT', '/api/settings', {
+      storeName: document.getElementById('storeNameInp').value.trim(),
+      storePhone: document.getElementById('storePhoneInp').value.trim(),
+      storeAddress: document.getElementById('storeAddressInp').value.trim(),
+      fbUrl: document.getElementById('fbUrlInp').value.trim(),
+      igUrl: document.getElementById('igUrlInp').value.trim(),
+    });
+    toast('স্টোর সেটিংস সংরক্ষিত', 'success');
+  } catch (err) { toast('ব্যর্থ: ' + err.message, 'error'); }
+}
+
+async function saveDeliverySettings() {
+  try {
+    await api('PUT', '/api/settings', {
+      deliveryInside: parseInt(document.getElementById('dlivInside').value) || 80,
+      deliveryOutside: parseInt(document.getElementById('dlivOutside').value) || 130,
+      freeDeliveryMin: parseInt(document.getElementById('freeDlivMin').value) || 0,
+    });
+    toast('ডেলিভারি সেটিংস সংরক্ষিত', 'success');
+  } catch (err) { toast('ব্যর্থ: ' + err.message, 'error'); }
+}
+
+async function changePassword() {
+  const cur = document.getElementById('curPassInp').value;
+  const nw = document.getElementById('newPassInp').value;
+  if (!cur || !nw) { toast('সব ঘর পূরণ করুন', 'error'); return; }
+  if (nw.length < 6) { toast('নতুন পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে', 'error'); return; }
+  try {
+    await api('PUT', '/api/auth/password', { currentPassword: cur, newPassword: nw });
+    toast('পাসওয়ার্ড পরিবর্তন সফল', 'success');
+    document.getElementById('curPassInp').value = '';
+    document.getElementById('newPassInp').value = '';
+  } catch (err) { toast('ব্যর্থ: ' + err.message, 'error'); }
+}
+
+async function seedData() {
+  try {
+    const res = await api('POST', '/api/seed');
+    toast(res.message || 'সিড সফল', 'success');
+    loadCategories();
+  } catch (err) { toast('সিড ব্যর্থ: ' + err.message, 'error'); }
+}
+
+function saveApiUrl() {
+  const url = document.getElementById('apiUrlInp').value.trim().replace(/\/$/, '');
+  if (!url) return;
+  API = url;
+  localStorage.setItem('adminApiUrl', API);
+  document.getElementById('apiUrlDisp').textContent = API;
+  toast('API URL সংরক্ষিত', 'success');
+}
+
+// ─── UTILITIES ───
+function statusBadge(status) {
+  const map = { pending: 'yellow', confirmed: 'blue', processing: 'purple', shipped: 'orange', delivered: 'green', cancelled: 'red' };
+  const lbl = { pending: '⏳ Pending', confirmed: '✅ Confirmed', processing: '⚙️ Processing', shipped: '🚚 Shipped', delivered: '🎉 Delivered', cancelled: '❌ Cancelled' };
+  return `<span class="badge ${map[status]||'gray'}">${lbl[status]||status}</span>`;
+}
+
+function statusColor(status) {
+  const map = { pending: 'var(--yellow)', confirmed: 'var(--blue)', processing: 'var(--purple)', shipped: 'var(--orange)', delivered: 'var(--green)', cancelled: 'var(--red)' };
+  return map[status] || 'var(--border)';
+}
+
+function timeAgo(date) {
+  const diff = (Date.now() - new Date(date)) / 1000;
+  if (diff < 60) return 'এইমাত্র';
+  if (diff < 3600) return `${Math.floor(diff/60)} মিনিট আগে`;
+  if (diff < 86400) return `${Math.floor(diff/3600)} ঘণ্টা আগে`;
+  return new Date(date).toLocaleDateString('bn-BD');
+}
+
+function renderPagination(containerId, total, limit, current, callback) {
+  const pages = Math.ceil(total / limit);
+  if (pages <= 1) { document.getElementById(containerId).innerHTML = ''; return; }
+  let html = `<button class="pg-btn" onclick="(${callback.toString()})(${current-1})" ${current===1?'disabled':''}><i class="fa-solid fa-chevron-left"></i></button>`;
+  for (let i = 1; i <= Math.min(pages, 7); i++) {
+    html += `<button class="pg-btn ${i===current?'active':''}" onclick="(${callback.toString()})(${i})">${i}</button>`;
+  }
+  html += `<button class="pg-btn" onclick="(${callback.toString()})(${current+1})" ${current===pages?'disabled':''}><i class="fa-solid fa-chevron-right"></i></button>`;
+  document.getElementById(containerId).innerHTML = html;
+}
+
+// ─── MODALS ───
+function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow = 'hidden'; }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = ''; }
+
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('modal-ov')) closeModal(e.target.id);
+});
+
+// ─── CONFIRM ───
+let confirmCallback = null;
+function showConfirm(icon, msg, name, callback) {
+  document.getElementById('confirmIcon').textContent = icon;
+  document.getElementById('confirmMsg').textContent = msg;
+  document.getElementById('confirmName').textContent = name || '';
+  confirmCallback = callback;
+  document.getElementById('confirmOkBtn').onclick = async () => {
+    closeModal('confirmModal');
+    if (confirmCallback) await confirmCallback();
+  };
+  openModal('confirmModal');
+}
+
+// ─── TOAST ───
+function toast(msg, type = 'info') {
+  const container = document.getElementById('toastContainer');
+  const el = document.createElement('div');
+  const icons = { success: 'fa-circle-check', error: 'fa-circle-xmark', info: 'fa-circle-info' };
+  el.className = `toast-item ${type}`;
+  el.innerHTML = `<i class="fa-solid ${icons[type]||icons.info}"></i><span>${msg}</span>`;
+  container.appendChild(el);
+  setTimeout(() => el.classList.add('show'), 10);
+  setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 300); }, 3500);
+}
+
+// ─── DEBOUNCE ───
+function debounce(fn, delay) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+}
+
+// ─── INIT ───
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('apiUrlDisp').textContent = API;
+  document.getElementById('apiUrlInp').value = API;
+  
+  if (isLoggedIn()) {
+    showApp();
+  }
+
+  // Enter key for login
+  document.getElementById('loginUser').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('loginPass').focus(); });
+});
+</script>
+</body>
+</html>
