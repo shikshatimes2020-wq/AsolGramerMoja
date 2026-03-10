@@ -773,10 +773,20 @@ function buildHero() {
     s3: `<svg class="hero-svg" viewBox="0 0 1400 360" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice"><rect width="700" height="360" fill="url(#hg3s)"/><circle cx="1100" cy="180" r="130" fill="#4a9e6f" opacity=".2"/><defs><linearGradient id="hg3s" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#1a3a5c" stop-opacity=".86"/><stop offset="100%" stop-color="#1a3a5c" stop-opacity="0"/></linearGradient></defs></svg>`,
   };
 
-  const slidesHtml = heroSlides.map((s, i) => `
-    <div class="slide ${i===0?'active':''} ${gradMap[s.gradient]||'s1'}" data-idx="${i}">
-      ${svgBgs[s.gradient||'s1']||svgBgs.s1}
-    </div>`).join('');
+  const slidesHtml = heroSlides.map((s, i) => {
+    const gradClass = gradMap[s.gradient] || 's1';
+    const svgBg = svgBgs[s.gradient || 's1'] || svgBgs.s1;
+    const imgHtml = s.img
+      ? `<img src="${s.img}" alt="${s.title||''}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;" onerror="this.remove()">`
+      : '';
+    const overlay = s.img
+      ? `<div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.55) 0%,rgba(0,0,0,.15) 60%,transparent 100%);z-index:2;"></div>`
+      : '';
+    const svgWrap = `<div style="position:relative;z-index:3;${s.img ? 'display:none;' : ''}">${svgBg}</div>`;
+    return `<div class="slide ${i===0?'active':''} ${gradClass}" data-idx="${i}" style="position:absolute;inset:0;overflow:hidden;">
+      ${imgHtml}${overlay}${svgWrap}
+    </div>`;
+  }).join('');
 
   // Replace existing slides (keep hero-cw and dots)
   const heroCw = section.querySelector('.hero-cw');
@@ -802,6 +812,8 @@ function goSlide(n) {
   if (slide) {
     document.getElementById('hTitle').textContent = slide.title || '';
     document.getElementById('hSub').textContent = slide.subtitle || '';
+    const ctaBtn = document.querySelector('.btn-hero');
+    if (ctaBtn && slide.ctaText) ctaBtn.textContent = slide.ctaText;
   }
   cur = n;
 }
