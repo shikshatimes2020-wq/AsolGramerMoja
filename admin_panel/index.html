@@ -36,6 +36,7 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; }
 html { scroll-behavior: smooth; }
 body { font-family: 'Hind Siliguri', sans-serif; background: var(--bg); color: var(--txt); min-height: 100vh; overflow-x: hidden; }
 
@@ -72,20 +73,32 @@ body { font-family: 'Hind Siliguri', sans-serif; background: var(--bg); color: v
 .login-err { background:rgba(218,54,51,.12); border:1px solid var(--red); border-radius:7px; padding:10px 14px; font-size:.82rem; color:var(--red2); margin-top:14px; display:none; text-align:center; }
 .login-err.show { display:block; }
 
-/* LAYOUT */
-#appLayout { display:none; min-height:100vh; }
+/* ═══════════════════════════════
+   LAYOUT — FULL WIDTH FIX
+═══════════════════════════════ */
+#appLayout {
+  display: none;
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* SIDEBAR — fixed, always on left */
 .sidebar {
-  position:fixed;
-  left:0; top:0; bottom:0;
-  width:var(--sidebar-w);
-  background:var(--bg2);
-  border-right:1px solid var(--border);
-  display:flex;
-  flex-direction:column;
-  z-index:200;
-  transition:transform .3s cubic-bezier(.4,0,.2,1);
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--sidebar-w);
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  z-index: 200;
+  transition: transform .3s cubic-bezier(.4,0,.2,1);
   overflow-y: auto;
 }
+
 .sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:199; backdrop-filter:blur(2px); }
 .sidebar-overlay.show { display:block; }
 
@@ -104,7 +117,6 @@ body { font-family: 'Hind Siliguri', sans-serif; background: var(--bg); color: v
 .nav-badge { margin-left:auto; background:var(--orange); color:#fff; font-size:.6rem; font-weight:700; padding:2px 7px; border-radius:20px; min-width:20px; text-align:center; }
 .nav-badge.green { background:var(--green); }
 
-/* View Site button in sidebar */
 .btn-view-site { display:flex; align-items:center; gap:8px; padding:10px 18px; margin:4px 8px; border-radius:7px; background:rgba(46,160,67,.1); border:1px solid rgba(46,160,67,.25); color:var(--green2); font-size:.86rem; font-weight:600; cursor:pointer; text-decoration:none; transition:all .2s; }
 .btn-view-site:hover { background:rgba(46,160,67,.2); border-color:var(--green); }
 
@@ -116,22 +128,22 @@ body { font-family: 'Hind Siliguri', sans-serif; background: var(--bg); color: v
 .btn-logout { margin-left:auto; background:none; border:none; color:var(--txt3); cursor:pointer; font-size:.88rem; padding:6px; border-radius:6px; transition:all .15s; }
 .btn-logout:hover { background:rgba(218,54,51,.15); color:var(--red2); }
 
-/* TOPBAR */
+/* TOPBAR — spans full width minus sidebar */
 .topbar {
-  position:fixed;
-  left:var(--sidebar-w);
-  right:0;
-  top:0;
-  height:var(--header-h);
-  background:var(--bg2);
-  border-bottom:1px solid var(--border);
-  display:flex;
-  align-items:center;
-  padding:0 20px;
-  gap:12px;
-  z-index:99;
-  transition:left .3s cubic-bezier(.4,0,.2,1);
+  position: fixed;
+  left: var(--sidebar-w);
+  right: 0;
+  top: 0;
+  height: var(--header-h);
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 12px;
+  z-index: 99;
 }
+
 .page-title { font-size:1.05rem; font-weight:700; color:var(--txt); white-space:nowrap; }
 .page-sub { font-size:.78rem; color:var(--txt2); margin-top:1px; white-space:nowrap; }
 .topbar-right { margin-left:auto; display:flex; align-items:center; gap:8px; }
@@ -149,22 +161,32 @@ body { font-family: 'Hind Siliguri', sans-serif; background: var(--bg); color: v
 .btn-warning { background:rgba(210,153,34,.12); color:var(--yellow2); border:1px solid rgba(210,153,34,.3); padding:6px 12px; border-radius:6px; cursor:pointer; font-family:inherit; font-size:.78rem; display:flex; align-items:center; gap:5px; transition:all .15s; }
 .btn-sm { padding:5px 10px; font-size:.74rem; }
 
-/* MAIN CONTENT */
+/* MAIN CONTENT — takes all remaining space */
 .main-content {
-  margin-left:var(--sidebar-w);
-  margin-top:var(--header-h);
-  padding:20px;
-  min-height:calc(100vh - var(--header-h));
-  transition:margin-left .3s cubic-bezier(.4,0,.2,1);
+  position: absolute;
+  top: var(--header-h);
+  left: var(--sidebar-w);
+  right: 0;
+  bottom: 0;
+  min-height: calc(100vh - var(--header-h));
+  padding: 22px 24px;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* PAGES */
-.page-view { display:none; animation:fadeIn .2s ease; }
+.page-view { display:none; animation:fadeIn .2s ease; width: 100%; }
 .page-view.active { display:block; }
 @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
 
 /* DASHBOARD */
-.stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:20px; }
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+  width: 100%;
+}
 .stat-card { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:18px; position:relative; overflow:hidden; transition:border-color .2s, transform .2s; }
 .stat-card:hover { border-color:var(--border2); transform:translateY(-2px); }
 .stat-card::after { content:''; position:absolute; top:0; left:0; right:0; height:3px; border-radius:12px 12px 0 0; }
@@ -184,23 +206,30 @@ body { font-family: 'Hind Siliguri', sans-serif; background: var(--bg); color: v
 .stat-change.up { color:var(--green2); }
 .stat-change.neutral { color:var(--txt2); }
 
-.chart-grid { display:grid; grid-template-columns:1fr 260px; gap:14px; margin-bottom:20px; }
-.card { background:var(--bg2); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+/* Chart grid — revenue chart wider */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 16px;
+  margin-bottom: 20px;
+  width: 100%;
+}
+.card { background:var(--bg2); border:1px solid var(--border); border-radius:12px; overflow:hidden; width:100%; }
 .card-header { padding:14px 18px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
 .card-header h3 { font-size:.9rem; font-weight:700; color:var(--txt); display:flex; align-items:center; gap:8px; }
 .card-body { padding:18px; }
 .chart-bar-wrap { display:flex; flex-direction:column; gap:12px; }
 .chart-bar-item { display:flex; align-items:center; gap:10px; }
-.chart-bar-lbl { font-size:.72rem; color:var(--txt2); width:75px; flex-shrink:0; text-align:right; }
+.chart-bar-lbl { font-size:.72rem; color:var(--txt2); width:85px; flex-shrink:0; text-align:right; }
 .chart-bar-outer { flex:1; height:7px; background:var(--bg3); border-radius:4px; overflow:hidden; }
 .chart-bar-inner { height:100%; border-radius:4px; background:linear-gradient(90deg,var(--green),var(--green3)); transition:width 1s ease; }
-.chart-bar-val { font-size:.7rem; font-weight:700; color:var(--txt); width:55px; flex-shrink:0; font-family:'JetBrains Mono',monospace; }
+.chart-bar-val { font-size:.7rem; font-weight:700; color:var(--txt); width:65px; flex-shrink:0; font-family:'JetBrains Mono',monospace; }
 
 /* TABLE */
-.table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; width:100%; }
 .data-table { width:100%; border-collapse:collapse; min-width:600px; }
-.data-table th { background:var(--bg3); color:var(--txt2); font-size:.73rem; font-weight:700; text-transform:uppercase; letter-spacing:.7px; padding:10px 12px; text-align:left; border-bottom:1px solid var(--border); white-space:nowrap; }
-.data-table td { padding:10px 12px; border-bottom:1px solid var(--border); color:var(--txt); font-size:.83rem; vertical-align:middle; }
+.data-table th { background:var(--bg3); color:var(--txt2); font-size:.73rem; font-weight:700; text-transform:uppercase; letter-spacing:.7px; padding:10px 14px; text-align:left; border-bottom:1px solid var(--border); white-space:nowrap; }
+.data-table td { padding:10px 14px; border-bottom:1px solid var(--border); color:var(--txt); font-size:.83rem; vertical-align:middle; }
 .data-table tr:last-child td { border-bottom:none; }
 .data-table tbody tr { transition:background .12s; }
 .data-table tbody tr:hover { background:var(--bg3); }
@@ -228,7 +257,7 @@ body { font-family: 'Hind Siliguri', sans-serif; background: var(--bg); color: v
 .icon-btn.star-active { color:var(--yellow2); border-color:rgba(210,153,34,.4); }
 
 /* FILTERS */
-.filters-bar { display:flex; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+.filters-bar { display:flex; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap; width:100%; }
 .search-input { background:var(--bg2); border:1.5px solid var(--border); border-radius:8px; padding:9px 14px 9px 34px; color:var(--txt); font-family:inherit; font-size:.84rem; outline:none; transition:border-color .2s, box-shadow .2s; min-width:200px; }
 .search-input:focus { border-color:var(--green); box-shadow:0 0 0 3px var(--green-glow); }
 .search-input::placeholder { color:var(--txt3); }
@@ -378,7 +407,7 @@ textarea.form-control { resize:vertical; min-height:80px; }
 .progress-bar { height:4px; background:var(--bg3); border-radius:2px; overflow:hidden; margin-top:5px; }
 .progress-fill { height:100%; background:linear-gradient(90deg,var(--green),var(--green3)); border-radius:2px; transition:width .6s ease; }
 
-/* PAGE CONTENT SECTIONS (About, Contact) */
+/* PAGE CONTENT SECTIONS */
 .content-editor { background:var(--bg3); border:1.5px solid var(--border); border-radius:8px; padding:14px; min-height:120px; color:var(--txt); font-family:inherit; font-size:.87rem; outline:none; resize:vertical; width:100%; transition:border-color .2s; }
 .content-editor:focus { border-color:var(--green); }
 
@@ -386,13 +415,17 @@ textarea.form-control { resize:vertical; min-height:80px; }
 .mobile-menu-btn { display:none; background:none; border:none; color:var(--txt2); font-size:1.1rem; cursor:pointer; padding:7px; border-radius:6px; transition:all .15s; }
 .mobile-menu-btn:hover { background:var(--bg3); color:var(--txt); }
 
-/* CLOCK - always English digits */
+/* CLOCK */
 #clockDisp { font-family:'JetBrains Mono', monospace; }
 
 /* ══ RESPONSIVE ══ */
-@media (max-width: 1200px) {
-  .stats-grid { grid-template-columns:repeat(2,1fr); }
-  .chart-grid { grid-template-columns:1fr; }
+@media (max-width: 1400px) {
+  .stats-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (max-width: 1100px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .chart-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 768px) {
@@ -400,7 +433,7 @@ textarea.form-control { resize:vertical; min-height:80px; }
   .sidebar { transform:translateX(-240px); width:240px; }
   .sidebar.mobile-open { transform:translateX(0); }
   .topbar { left:0; padding:0 14px; gap:10px; }
-  .main-content { margin-left:0; padding:14px; }
+  .main-content { left:0; padding:14px; }
   .stats-grid { grid-template-columns:1fr 1fr; gap:10px; }
   .form-row { grid-template-columns:1fr; }
   .filters-bar { gap:7px; }
@@ -456,7 +489,6 @@ textarea.form-control { resize:vertical; min-height:80px; }
 
 <!-- APP LAYOUT -->
 <div id="appLayout">
-  <!-- SIDEBAR OVERLAY (mobile) -->
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
   <!-- SIDEBAR -->
@@ -496,7 +528,6 @@ textarea.form-control { resize:vertical; min-height:80px; }
         <i class="fa-solid fa-gear"></i> সেটিংস
       </div>
     </nav>
-    <!-- View Site Button -->
     <div style="padding:10px 8px 0">
       <a class="btn-view-site" id="viewSiteBtn" href="#" target="_blank" onclick="openFrontend(event)">
         <i class="fa-solid fa-arrow-up-right-from-square"></i> সাইট দেখুন
@@ -726,8 +757,6 @@ textarea.form-control { resize:vertical; min-height:80px; }
           </div>
         </div>
       </div>
-
-      <!-- About Stats -->
       <div class="card">
         <div class="card-header">
           <h3><i class="fa-solid fa-chart-bar" style="color:var(--orange)"></i> পরিসংখ্যান (ঐচ্ছিক)</h3>
@@ -811,8 +840,6 @@ textarea.form-control { resize:vertical; min-height:80px; }
           </div>
         </div>
       </div>
-
-      <!-- FAQ Section -->
       <div class="card">
         <div class="card-header">
           <h3><i class="fa-solid fa-circle-question" style="color:var(--purple)"></i> প্রশ্ন ও উত্তর (FAQ)</h3>
@@ -924,7 +951,6 @@ textarea.form-control { resize:vertical; min-height:80px; }
           <input type="text" class="form-control" id="pPhone" placeholder="01712345678">
         </div>
       </div>
-      <!-- Main Image -->
       <div class="form-group2">
         <label>মূল ছবি</label>
         <div class="img-upload-area" id="mainImgArea" onclick="document.getElementById('mainImgInput').click()">
@@ -936,7 +962,6 @@ textarea.form-control { resize:vertical; min-height:80px; }
         <input type="hidden" id="pImg">
         <input type="hidden" id="pImgPid">
       </div>
-      <!-- Thumb Images -->
       <div class="form-group2">
         <label>গ্যালারি ছবি (সর্বোচ্চ ৪টি)</label>
         <div class="img-upload-area" onclick="document.getElementById('thumbImgsInput').click()">
@@ -948,12 +973,10 @@ textarea.form-control { resize:vertical; min-height:80px; }
         <input type="hidden" id="pImgs" value="[]">
         <input type="hidden" id="pImgsPids" value="[]">
       </div>
-      <!-- Description -->
       <div class="form-group2">
         <label>পণ্যের বিবরণ</label>
         <textarea class="form-control" id="pDesc" rows="3" placeholder="পণ্যটি সম্পর্কে বিস্তারিত লিখুন..."></textarea>
       </div>
-      <!-- Highlights -->
       <div class="form-group2">
         <label>হাইলাইটস</label>
         <div class="highlights-list" id="highlightsList"></div>
@@ -961,7 +984,6 @@ textarea.form-control { resize:vertical; min-height:80px; }
           <i class="fa-solid fa-plus"></i> হাইলাইট যোগ করুন
         </button>
       </div>
-      <!-- Variants -->
       <div class="form-group2">
         <label>ভেরিয়েন্ট / মূল্য <span>*</span></label>
         <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px;padding:5px 0;margin-bottom:4px">
@@ -976,7 +998,6 @@ textarea.form-control { resize:vertical; min-height:80px; }
           <i class="fa-solid fa-plus"></i> ভেরিয়েন্ট যোগ করুন
         </button>
       </div>
-      <!-- Toggles -->
       <div class="form-row" style="margin-top:6px">
         <div class="form-group2">
           <label>বেস্ট সেলার</label>
@@ -1041,8 +1062,6 @@ textarea.form-control { resize:vertical; min-height:80px; }
       <input type="hidden" id="heroId">
       <div class="form-group2"><label>শিরোনাম <span>*</span></label><input type="text" class="form-control" id="hTitle" placeholder="হিরো শিরোনাম"></div>
       <div class="form-group2"><label>সাবটাইটেল</label><input type="text" class="form-control" id="hSub" placeholder="সাবটাইটেল"></div>
-      
-      <!-- Hero Image Upload -->
       <div class="form-group2">
         <label>স্লাইড ছবি (ঐচ্ছিক — না দিলে গ্র্যাডিয়েন্ট ব্যবহার হবে)</label>
         <div class="img-upload-area" onclick="document.getElementById('heroImgInput').click()">
@@ -1054,7 +1073,6 @@ textarea.form-control { resize:vertical; min-height:80px; }
         <input type="hidden" id="hImg">
         <input type="hidden" id="hImgPid">
       </div>
-
       <div class="form-row">
         <div class="form-group2">
           <label>গ্র্যাডিয়েন্ট (ছবি না থাকলে)</label>
@@ -1133,14 +1151,12 @@ const api = async (method, path, body, isFormData = false) => {
   return data;
 };
 
-// ─── STATE ───
 let currentPage = 'dashboard';
 let prodPage = 1, orderPage = 1;
 let allProds = [], allCats = [];
 let pendingOrderCount = 0;
 let uploadedMainImg = null;
 
-// ─── CLOCK (always English digits) ───
 setInterval(() => {
   const now = new Date();
   const hh = String(now.getHours()).padStart(2,'0');
@@ -1149,7 +1165,6 @@ setInterval(() => {
   document.getElementById('clockDisp').textContent = `${hh}:${mm}:${ss}`;
 }, 1000);
 
-// ─── AUTH ───
 async function doLogin() {
   const username = document.getElementById('loginUser').value.trim();
   const password = document.getElementById('loginPass').value.trim();
@@ -1183,7 +1198,7 @@ function doLogout() {
 
 function showApp() {
   document.getElementById('loginPage').style.display = 'none';
-  document.getElementById('appLayout').style.display = 'flex';
+  document.getElementById('appLayout').style.display = 'block';
   loadDashboard(); loadCategoriesForFilter(); checkHealth();
   loadFrontendUrl();
 }
@@ -1203,7 +1218,6 @@ function openFrontend(e) {
   else { toast('সেটিংস > স্টোর তথ্যতে ফ্রন্টএন্ড URL সেট করুন', 'info'); navTo('settings'); }
 }
 
-// ─── SIDEBAR ───
 function toggleSidebar() {
   const sb = document.getElementById('sidebar');
   const ov = document.getElementById('sidebarOverlay');
@@ -1215,7 +1229,6 @@ function closeSidebar() {
   document.getElementById('sidebarOverlay').classList.remove('show');
 }
 
-// ─── NAVIGATION ───
 function navTo(page) {
   currentPage = page;
   document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.page === page));
@@ -1245,7 +1258,6 @@ function navTo(page) {
   if (page === 'settings') loadSettings();
 }
 
-// ─── HEALTH CHECK ───
 async function checkHealth() {
   try {
     const res = await fetch(API + '/api/health');
@@ -1260,7 +1272,6 @@ async function checkHealth() {
 }
 setInterval(checkHealth, 30000);
 
-// ─── DASHBOARD ───
 async function loadDashboard() {
   try {
     const data = await api('GET', '/api/dashboard/stats');
@@ -1325,7 +1336,6 @@ async function loadDashboard() {
   } catch(err) { toast('ড্যাশবোর্ড লোড ব্যর্থ: '+err.message,'error'); }
 }
 
-// ─── PRODUCTS ───
 async function loadCategoriesForFilter() {
   try {
     allCats = await api('GET','/api/categories/all');
@@ -1537,7 +1547,6 @@ async function toggleBest(id,btn) {
   catch { toast('আপডেট ব্যর্থ','error'); }
 }
 
-// ─── ORDERS ───
 async function loadOrders() {
   const search=document.getElementById('orderSearch').value.trim(), status=document.getElementById('orderStatusFilter').value;
   const tbody=document.getElementById('orderTableBody');
@@ -1600,7 +1609,6 @@ async function viewOrder(id) {
   } catch { toast('অর্ডার লোড ব্যর্থ','error'); }
 }
 
-// ─── CATEGORIES ───
 async function loadCategories() {
   try {
     const cats=await api('GET','/api/categories/all');
@@ -1646,7 +1654,6 @@ function deleteCat(id,name) {
   });
 }
 
-// ─── HERO ───
 async function loadHero() {
   try {
     const slides=await api('GET','/api/hero/all');
@@ -1677,7 +1684,6 @@ function openHeroModal(slide=null) {
   document.getElementById('hCtaText').value=slide?slide.ctaText||'':'';
   document.getElementById('hImg').value=slide?slide.img||'':'';
   document.getElementById('hImgPid').value=slide?slide.imgPublicId||'':'';
-  // Show existing image if any
   if (slide?.img) {
     document.getElementById('heroImgPreview').innerHTML=`<div class="hero-img-preview"><img src="${slide.img}" alt="hero"><button class="remove-hero-img" onclick="removeHeroImg()"><i class="fa-solid fa-xmark"></i></button></div>`;
   } else {
@@ -1734,7 +1740,6 @@ async function deleteHero(id) {
   });
 }
 
-// ─── ABOUT PAGE ───
 async function loadAboutPage() {
   try {
     const s=await api('GET','/api/settings');
@@ -1750,7 +1755,6 @@ async function loadAboutPage() {
     document.getElementById('aboutActive').value=String(isActive);
     document.getElementById('aboutActiveTrack').className='toggle-track '+(isActive?'on':'');
     document.getElementById('aboutActiveLbl').textContent=isActive?'হ্যাঁ':'না';
-    // Stats
     const stats=about.stats||[{label:'বছরের অভিজ্ঞতা',value:'10+'},{label:'সন্তুষ্ট গ্রাহক',value:'5000+'},{label:'পণ্যের ধরন',value:'50+'}];
     renderAboutStats(stats);
   } catch{}
@@ -1816,7 +1820,6 @@ async function saveAboutPage() {
   } catch(err) { toast('ব্যর্থ: '+err.message,'error'); }
 }
 
-// ─── CONTACT PAGE ───
 async function loadContactPage() {
   try {
     const s=await api('GET','/api/settings');
@@ -1906,7 +1909,6 @@ function togglePageField(id) {
   document.getElementById(id+'Lbl').textContent=!cur?'হ্যাঁ':'না';
 }
 
-// ─── SETTINGS ───
 async function loadSettings() {
   try {
     const s=await api('GET','/api/settings');
@@ -1969,7 +1971,6 @@ function saveApiUrl() {
   toast('API URL সংরক্ষিত','success');
 }
 
-// ─── UTILITIES ───
 function statusBadge(status) {
   const map={pending:'yellow',confirmed:'blue',processing:'purple',shipped:'orange',delivered:'green',cancelled:'red'};
   const lbl={pending:'⏳ Pending',confirmed:'✅ Confirmed',processing:'⚙️ Processing',shipped:'🚚 Shipped',delivered:'🎉 Delivered',cancelled:'❌ Cancelled'};
@@ -1995,12 +1996,10 @@ function renderPagination(containerId,total,limit,current,callback) {
   document.getElementById(containerId).innerHTML=html;
 }
 
-// ─── MODALS ───
 function openModal(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow='hidden'; }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow=''; }
 document.addEventListener('click', e => { if(e.target.classList.contains('modal-ov')) closeModal(e.target.id); });
 
-// ─── CONFIRM ───
 let confirmCallback=null;
 function showConfirm(icon,msg,name,callback) {
   document.getElementById('confirmIcon').textContent=icon;
@@ -2011,7 +2010,6 @@ function showConfirm(icon,msg,name,callback) {
   openModal('confirmModal');
 }
 
-// ─── TOAST ───
 function toast(msg,type='info') {
   const container=document.getElementById('toastContainer');
   const el=document.createElement('div');
@@ -2023,10 +2021,8 @@ function toast(msg,type='info') {
   setTimeout(()=>{el.classList.remove('show');setTimeout(()=>el.remove(),300);},3500);
 }
 
-// ─── DEBOUNCE ───
 function debounce(fn,delay) { let timer; return (...args)=>{clearTimeout(timer);timer=setTimeout(()=>fn(...args),delay);}; }
 
-// ─── INIT ───
 document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('apiUrlDisp').textContent=API;
   document.getElementById('apiUrlInp').value=API;
