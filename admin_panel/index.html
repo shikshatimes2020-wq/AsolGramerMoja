@@ -947,7 +947,7 @@ textarea.form-control { resize:vertical; min-height:80px; }
         </div>
         <div class="form-group2">
           <label>ইমোজি</label>
-          <input type="text" class="form-control" id="pEm" placeholder="🍯" maxlength="4">
+          <input type="text" class="form-control" id="pEm" placeholder="🍯" maxlength="4" onfocus="addProductEmojiPicker()">
         </div>
       </div>
       <div class="form-row">
@@ -1406,6 +1406,33 @@ async function loadProducts() {
 
 function filterProds() { prodPage=1; loadProducts(); }
 
+/* ===== EMOJI PICKER FOR PRODUCT MODAL ===== */
+const COMMON_EMOJIS = ['🍯','🥛','🧈','🐟','🥩','🥚','🌾','🍚','🌶️','🧄','🍌','🥭','🍊','🍎','🫐','🥦','🥕','🧅','🍞','🍪','🍰','🍫','🍬','🍭','☕','🧃','🧴','🌿','🌻','🏡','📦','🎁'];
+
+function addProductEmojiPicker() {
+  const emojiField = document.getElementById('pEm');
+  if (!emojiField) return;
+  let picker = document.getElementById('prodEmojiPicker');
+  if (!picker) {
+    picker = document.createElement('div');
+    picker.id = 'prodEmojiPicker';
+    picker.style.marginTop = '8px';
+    picker.style.display = 'flex';
+    picker.style.flexWrap = 'wrap';
+    picker.style.gap = '5px';
+    picker.style.background = 'var(--bg3)';
+    picker.style.padding = '8px';
+    picker.style.borderRadius = '8px';
+    picker.style.border = '1px solid var(--border)';
+    emojiField.parentNode.appendChild(picker);
+  }
+  picker.innerHTML = COMMON_EMOJIS.map(em => `<span onclick="insertProductEmoji('${em}')" style="cursor:pointer; font-size:1.5rem; padding:2px; transition:transform .1s;">${em}</span>`).join('');
+}
+
+function insertProductEmoji(em) {
+  document.getElementById('pEm').value = em;
+}
+
 function openProdModal(prod=null) {
   ['prodId','pImg','pImgPid'].forEach(id => document.getElementById(id).value='');
   document.getElementById('pImgs').value='[]'; document.getElementById('pImgsPids').value='[]';
@@ -1416,6 +1443,8 @@ function openProdModal(prod=null) {
   document.getElementById('pBestLbl').textContent='না'; document.getElementById('pActiveLbl').textContent='হ্যাঁ';
   document.getElementById('mainImgPreview').innerHTML=''; document.getElementById('thumbImgPreview').innerHTML='';
   document.getElementById('prodModalTitle').innerHTML='<i class="fa-solid fa-plus" style="color:var(--green)"></i> নতুন পণ্য যোগ করুন';
+  // Ensure emoji picker is added
+  addProductEmojiPicker();
   if (prod) {
     document.getElementById('prodModalTitle').innerHTML='<i class="fa-solid fa-pen-to-square" style="color:var(--blue)"></i> পণ্য সম্পাদনা করুন';
     document.getElementById('prodId').value=prod._id;
@@ -1500,30 +1529,40 @@ function toggleProdField(id) {
 
 async function uploadMainImg(input) {
   if (!input.files[0]) return;
-  const formData=new FormData(); formData.append('image',input.files[0]);
-  const preview=document.getElementById('mainImgPreview');
-  preview.innerHTML='<div style="padding:8px;font-size:.8rem;color:var(--txt2)"><i class="fa-solid fa-spinner fa-spin"></i> আপলোড হচ্ছে...</div>';
+  const formData = new FormData(); formData.append('image', input.files[0]);
+  const preview = document.getElementById('mainImgPreview');
+  preview.innerHTML = '<div style="padding:8px;font-size:.8rem;color:var(--txt2)"><i class="fa-solid fa-spinner fa-spin"></i> আপলোড হচ্ছে...</div>';
   try {
-    const res=await api('POST','/api/upload/product-image',formData,true);
-    document.getElementById('pImg').value=res.url; document.getElementById('pImgPid').value=res.publicId;
-    preview.innerHTML=`<div class="img-preview" style="margin-top:10px"><div class="img-prev-item"><img src="${res.url}"></div></div>`;
+    const res = await api('POST','/api/upload/product-image', formData, true);
+    document.getElementById('pImg').value = res.url;
+    document.getElementById('pImgPid').value = res.publicId;
+    preview.innerHTML = `<div class="img-preview" style="margin-top:10px"><div class="img-prev-item"><img src="${res.url}"></div></div>`;
     toast('ছবি আপলোড সফল','success');
-  } catch(err) { preview.innerHTML=''; toast('ছবি আপলোড ব্যর্থ: '+err.message,'error'); }
+    input.value = ''; // clear input
+  } catch(err) {
+    preview.innerHTML = '';
+    toast('ছবি আপলোড ব্যর্থ: '+err.message,'error');
+  }
 }
 
 async function uploadThumbImgs(input) {
   if (!input.files.length) return;
-  const formData=new FormData();
-  [...input.files].slice(0,4).forEach(f=>formData.append('images',f));
-  const preview=document.getElementById('thumbImgPreview');
-  preview.innerHTML='<div style="padding:8px;font-size:.8rem;color:var(--txt2)"><i class="fa-solid fa-spinner fa-spin"></i> আপলোড হচ্ছে...</div>';
+  const formData = new FormData();
+  [...input.files].slice(0,4).forEach(f => formData.append('images', f));
+  const preview = document.getElementById('thumbImgPreview');
+  preview.innerHTML = '<div style="padding:8px;font-size:.8rem;color:var(--txt2)"><i class="fa-solid fa-spinner fa-spin"></i> আপলোড হচ্ছে...</div>';
   try {
-    const res=await api('POST','/api/upload/product-thumbs',formData,true);
-    const urls=res.map(r=>r.url), pids=res.map(r=>r.publicId);
-    document.getElementById('pImgs').value=JSON.stringify(urls); document.getElementById('pImgsPids').value=JSON.stringify(pids);
-    preview.innerHTML=urls.map(u=>`<div class="img-prev-item"><img src="${u}"></div>`).join('');
+    const res = await api('POST','/api/upload/product-thumbs', formData, true);
+    const urls = res.map(r => r.url), pids = res.map(r => r.publicId);
+    document.getElementById('pImgs').value = JSON.stringify(urls);
+    document.getElementById('pImgsPids').value = JSON.stringify(pids);
+    preview.innerHTML = urls.map(u => `<div class="img-prev-item"><img src="${u}"></div>`).join('');
     toast(`${res.length}টি ছবি আপলোড সফল`,'success');
-  } catch(err) { preview.innerHTML=''; toast('ছবি আপলোড ব্যর্থ: '+err.message,'error'); }
+    input.value = ''; // clear
+  } catch(err) {
+    preview.innerHTML = '';
+    toast('ছবি আপলোড ব্যর্থ: '+err.message,'error');
+  }
 }
 
 async function saveProd() {
@@ -1654,107 +1693,78 @@ function openCatModal(cat=null) {
   document.getElementById('cEm').value=cat?cat.em:'🛒';
   document.getElementById('cOrder').value=cat?cat.order:1;
   document.getElementById('catModalTitle').innerHTML=cat?'<i class="fa-solid fa-pen-to-square" style="color:var(--blue)"></i> ক্যাটাগরি সম্পাদনা':'<i class="fa-solid fa-tag" style="color:var(--orange)"></i> নতুন ক্যাটাগরি';
-  // Show emoji suggestions based on current ID
   suggestEmojis(cat?cat.id:'');
   openModal('catModal');
 }
 
 /* ── EMOJI SUGGESTION ENGINE ── */
 const EMOJI_MAP = {
-  // মধু / honey
   'মধু':['🍯','🐝','🌻','🌼','🍀'],
   'honey':['🍯','🐝','🌻'],
-  // দুধ / milk / dairy
   'দুধ':['🥛','🐄','🧈','🫙'],
   'milk':['🥛','🐄'],
   'dairy':['🥛','🧈','🐄'],
-  // মাছ / fish
   'মাছ':['🐟','🐠','🎣','🐡','🫙'],
   'fish':['🐟','🐠','🎣'],
-  // মাংস / meat / গরু / মুরগি
   'মাংস':['🥩','🍖','🐄','🐓'],
   'গরু':['🐄','🥩','🍖'],
   'মুরগি':['🐓','🍗','🥚'],
   'meat':['🥩','🍖'],
-  // ডিম / egg
   'ডিম':['🥚','🍳','🐓'],
   'egg':['🥚','🍳'],
-  // সবজি / vegetables
   'সবজি':['🥦','🥕','🍆','🧅','🥗'],
   'vegetables':['🥦','🥕','🍆'],
   'শাক':['🥬','🌿','🥦'],
-  // ফল / fruit
   'ফল':['🍎','🍊','🍋','🍇','🫐'],
   'fruit':['🍎','🍊'],
   'আম':['🥭','🍋','🌟'],
   'কলা':['🍌','🌿'],
   'লিচু':['🍒','🍓','🌺'],
-  // চাল / rice / grain
   'চাল':['🌾','🍚','🌿'],
   'rice':['🌾','🍚'],
   'গম':['🌾','🍞'],
   'আটা':['🌾','🍞','🥖'],
-  // তেল / oil
   'তেল':['🫙','🌻','🫒'],
   'oil':['🫙','🫒'],
   'সরিষা':['🌻','🫙','🌿'],
-  // মসলা / spice
   'মসলা':['🌶️','🧄','🧅','🫙','🌿'],
   'spice':['🌶️','🧄'],
   'মরিচ':['🌶️','🔴'],
   'হলুদ':['🟡','🌿','🫙'],
-  // পিঠা / cake / মিষ্টি
   'পিঠা':['🍮','🧁','🍰','🌾'],
   'মিষ্টি':['🍬','🍭','🧁','🍰'],
   'sweet':['🍬','🍭','🍰'],
   'cake':['🎂','🍰','🧁'],
-  // চা / tea / coffee
   'চা':['🍵','☕','🌿'],
   'tea':['🍵','🌿'],
   'coffee':['☕','🫘'],
-  // ঘি / ghee / butter
   'ঘি':['🧈','🫙','🍯'],
   'ghee':['🧈','🫙'],
   'butter':['🧈'],
-  // পানীয় / drink / juice
   'জুস':['🥤','🍹','🍊'],
   'juice':['🥤','🍹'],
   'drink':['🥤','🍺'],
   'পানীয়':['🥤','🍹','💧'],
-  // নারিকেল / coconut
   'নারিকেল':['🥥','🌴','🫙'],
   'coconut':['🥥','🌴'],
-  // খেজুর / date
   'খেজুর':['🌴','🫙','🍯'],
-  // আদা / ginger
   'আদা':['🫚','🌿','🍵'],
-  // রসুন / garlic
   'রসুন':['🧄','🌿'],
-  // পেঁয়াজ / onion
   'পেঁয়াজ':['🧅','🌿'],
-  // হাঁস / duck / কবুতর
   'হাঁস':['🦆','🥚','🍗'],
-  // কুটির / handicraft / হস্তশিল্প
   'হস্তশিল্প':['🧶','🪡','✂️','🎨'],
   'handicraft':['🧶','🎨'],
-  // শুঁটকি / dried fish
   'শুঁটকি':['🐟','🌞','🫙'],
-  // নদী / river / পুকুর
   'নদী':['🌊','🐟','🎣'],
-  // গ্রাম / village / rural
   'গ্রাম':['🏡','🌾','🌿','🌻'],
   'village':['🏡','🌾'],
-  // প্যাকেজ / combo
   'প্যাকেজ':['📦','🎁','🛍️'],
   'combo':['📦','🎁'],
   'অফার':['🏷️','🎁','💥'],
-  // ঔষধি / herbal / ayurvedic
   'ঔষধি':['🌿','🍃','💊'],
   'herbal':['🌿','🍃'],
-  // চিনি / sugar
   'চিনি':['🍬','🧂','🫙'],
   'sugar':['🍬'],
-  // নতুন / new
   'নতুন':['✨','🆕','🌟'],
 };
 
@@ -1766,12 +1776,10 @@ function suggestEmojis(id) {
   const lower = id.toLowerCase().trim();
   let found = [];
   
-  // Exact match first
   for (const [key, emojis] of Object.entries(EMOJI_MAP)) {
     if (lower === key.toLowerCase()) { found = [...emojis]; break; }
   }
   
-  // Partial match
   if (!found.length) {
     for (const [key, emojis] of Object.entries(EMOJI_MAP)) {
       if (lower.includes(key.toLowerCase()) || key.toLowerCase().includes(lower)) {
@@ -1780,7 +1788,6 @@ function suggestEmojis(id) {
     }
   }
   
-  // Smart character-level match for Bangla
   if (!found.length && lower.length >= 2) {
     const char2 = lower.substring(0,2);
     for (const [key, emojis] of Object.entries(EMOJI_MAP)) {
@@ -1788,7 +1795,6 @@ function suggestEmojis(id) {
     }
   }
   
-  // Remove duplicates & limit
   found = [...new Set(found)].slice(0, 8);
   
   if (!found.length) { wrap.style.display='none'; return; }
@@ -1803,7 +1809,6 @@ function suggestEmojis(id) {
 
 function pickEmoji(em) {
   document.getElementById('cEm').value = em;
-  // Update chip selection
   document.querySelectorAll('#emojiSuggestRow .emoji-chip').forEach(c => {
     c.classList.toggle('selected', c.textContent.trim() === em);
   });
@@ -1872,14 +1877,19 @@ function editHero(slide) { openHeroModal(slide); }
 
 async function uploadHeroImg(input) {
   if (!input.files[0]) return;
-  const formData=new FormData(); formData.append('image',input.files[0]);
-  document.getElementById('heroImgPreview').innerHTML='<div style="padding:8px;font-size:.8rem;color:var(--txt2)"><i class="fa-solid fa-spinner fa-spin"></i> আপলোড হচ্ছে...</div>';
+  const formData = new FormData(); formData.append('image', input.files[0]);
+  document.getElementById('heroImgPreview').innerHTML = '<div style="padding:8px;font-size:.8rem;color:var(--txt2)"><i class="fa-solid fa-spinner fa-spin"></i> আপলোড হচ্ছে...</div>';
   try {
-    const res=await api('POST','/api/upload/product-image',formData,true);
-    document.getElementById('hImg').value=res.url; document.getElementById('hImgPid').value=res.publicId;
-    document.getElementById('heroImgPreview').innerHTML=`<div class="hero-img-preview"><img src="${res.url}" alt="hero"><button class="remove-hero-img" onclick="removeHeroImg()"><i class="fa-solid fa-xmark"></i></button></div>`;
+    const res = await api('POST','/api/upload/product-image', formData, true);
+    document.getElementById('hImg').value = res.url;
+    document.getElementById('hImgPid').value = res.publicId;
+    document.getElementById('heroImgPreview').innerHTML = `<div class="hero-img-preview"><img src="${res.url}" alt="hero"><button class="remove-hero-img" onclick="removeHeroImg()"><i class="fa-solid fa-xmark"></i></button></div>`;
     toast('স্লাইড ছবি আপলোড সফল','success');
-  } catch(err) { document.getElementById('heroImgPreview').innerHTML=''; toast('ছবি আপলোড ব্যর্থ: '+err.message,'error'); }
+    input.value = ''; // clear
+  } catch(err) {
+    document.getElementById('heroImgPreview').innerHTML = '';
+    toast('ছবি আপলোড ব্যর্থ: '+err.message,'error');
+  }
 }
 
 function removeHeroImg() {
@@ -1953,14 +1963,17 @@ function removeAboutStat(idx) { const el=document.getElementById('stat-'+idx); i
 
 async function uploadPageBanner(page, input) {
   if (!input.files[0]) return;
-  const formData=new FormData(); formData.append('image',input.files[0]);
-  document.getElementById(page+'BannerPreview').innerHTML='<div style="padding:8px;font-size:.8rem;color:var(--txt2)"><i class="fa-solid fa-spinner fa-spin"></i> আপলোড হচ্ছে...</div>';
+  const formData = new FormData(); formData.append('image', input.files[0]);
+  document.getElementById(page+'BannerPreview').innerHTML = '<div style="padding:8px;font-size:.8rem;color:var(--txt2)"><i class="fa-solid fa-spinner fa-spin"></i> আপলোড হচ্ছে...</div>';
   try {
-    const res=await api('POST','/api/upload/product-image',formData,true);
-    document.getElementById(page+'BannerUrl').value=res.url;
-    document.getElementById(page+'BannerPreview').innerHTML=`<div class="img-preview" style="margin-top:10px"><div class="img-prev-item" style="width:120px;height:70px"><img src="${res.url}" style="width:100%;height:100%;object-fit:cover"></div></div>`;
+    const res = await api('POST','/api/upload/product-image', formData, true);
+    document.getElementById(page+'BannerUrl').value = res.url;
+    document.getElementById(page+'BannerPreview').innerHTML = `<div class="img-preview" style="margin-top:10px"><div class="img-prev-item" style="width:120px;height:70px"><img src="${res.url}" style="width:100%;height:100%;object-fit:cover"></div></div>`;
     toast('ছবি আপলোড সফল','success');
-  } catch(err) { toast('ছবি আপলোড ব্যর্থ','error'); }
+    input.value = ''; // clear
+  } catch(err) {
+    toast('ছবি আপলোড ব্যর্থ','error');
+  }
 }
 
 function getAboutStats() {
