@@ -646,10 +646,7 @@ textarea.form-control { resize:vertical; min-height:80px; }
           <option value="true">বেস্ট সেলার</option>
         </select>
         <span class="filter-count" id="prodCount">0 পণ্য</span>
-        <button class="btn-secondary" onclick="bulkSeedProducts()" title="৩০টি পণ্য একবারে যোগ করুন" style="border-color:var(--green);color:var(--green2)">
-          <i class="fa-solid fa-seedling"></i> Bulk Seed
-        </button>
-        <button class="btn-primary ml-auto" onclick="openProdModal()">
+<button class="btn-primary ml-auto" onclick="openProdModal()">
           <i class="fa-solid fa-plus"></i> নতুন পণ্য
         </button>
       </div>
@@ -919,15 +916,7 @@ textarea.form-control { resize:vertical; min-height:80px; }
               <button class="btn-warning" onclick="seedData(true)" title="সব মুছে নতুনভাবে সিড করুন"><i class="fa-solid fa-rotate"></i> Force Reseed</button>
             </div>
           </div>
-          <div class="settings-row">
-            <div class="settings-info">
-              <label>৬ ক্যাটাগরির ৩০টি পণ্য যোগ করুন</label>
-              <p>মিষ্টি, দই, মিঠাই, তৈল, বোরহানী, রশমালাই — প্রতিটিতে ৫টি পণ্য। সব field পূরণ করা থাকবে।</p>
-            </div>
-            <button class="btn-primary" id="bulkSeedBtn" onclick="bulkSeedProducts()">
-              <i class="fa-solid fa-seedling"></i> পণ্য Seed
-            </button>
-          </div>
+
           <div class="settings-row">
             <div class="settings-info"><label>API URL</label><p id="apiUrlDisp" style="font-family:'JetBrains Mono',monospace;font-size:.74rem;word-break:break-all"></p></div>
             <button class="btn-secondary" onclick="toggleApiInput()"><i class="fa-solid fa-edit"></i> পরিবর্তন</button>
