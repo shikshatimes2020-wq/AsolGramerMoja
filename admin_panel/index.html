@@ -903,8 +903,11 @@ textarea.form-control { resize:vertical; min-height:80px; }
         <div class="settings-section-hd"><i class="fa-solid fa-database" style="color:var(--blue)"></i><h3>সিস্টেম ও ডেটা</h3></div>
         <div class="settings-body">
           <div class="settings-row">
-            <div class="settings-info"><label>ডেমো ডেটা সিড করুন</label><p>ক্যাটাগরি ও হিরো স্লাইডের প্রাথমিক ডেটা যোগ করুন</p></div>
-            <button class="btn-secondary" onclick="seedData()"><i class="fa-solid fa-seedling"></i> Seed Data</button>
+            <div class="settings-info"><label>ডেমো ডেটা সিড করুন</label><p>ক্যাটাগরি ও পণ্যের প্রাথমিক ডেটা যোগ করুন (শুধু খালি থাকলে)</p></div>
+            <div style="display:flex;gap:8px">
+              <button class="btn-secondary" onclick="seedData(false)"><i class="fa-solid fa-seedling"></i> Seed Data</button>
+              <button class="btn-warning" onclick="seedData(true)" title="সব মুছে নতুনভাবে সিড করুন"><i class="fa-solid fa-rotate"></i> Force Reseed</button>
+            </div>
           </div>
           <div class="settings-row">
             <div class="settings-info"><label>API URL</label><p id="apiUrlDisp" style="font-family:'JetBrains Mono',monospace;font-size:.74rem;word-break:break-all"></p></div>
@@ -1061,6 +1064,14 @@ textarea.form-control { resize:vertical; min-height:80px; }
           </div>
         </div>
         <div class="form-group2"><label>ক্রম নম্বর</label><input type="number" class="form-control" id="cOrder" placeholder="1"></div>
+      </div>
+      <div class="form-group2">
+        <label>ক্যাটাগরি সক্রিয়</label>
+        <label class="toggle-switch" onclick="toggleCatActive()">
+          <div class="toggle-track on" id="cActiveTrack"><div class="toggle-thumb"></div></div>
+          <span id="cActiveLbl">হ্যাঁ</span>
+        </label>
+        <input type="hidden" id="cActive" value="true">
       </div>
     </div>
     <div class="modal-footer">
@@ -1673,17 +1684,35 @@ async function loadCategories() {
     document.getElementById('catCount').textContent=`${cats.length} ক্যাটাগরি`;
     if (!cats.length) { document.getElementById('catCards').innerHTML='<div class="empty-state"><i class="fa-solid fa-tags"></i><h3>কোনো ক্যাটাগরি নেই</h3></div>'; return; }
     document.getElementById('catCards').innerHTML=cats.map(c=>`
-      <div class="cat-card">
+      <div class="cat-card" id="catcard-${c._id}">
         <div class="cat-em">${c.em}</div>
         <div class="cat-nm">${c.lbl}</div>
         <div class="cat-cnt">ID: ${c.id} · ক্রম: ${c.order}</div>
-        <div style="display:flex;align-items:center;gap:6px"><span class="badge ${c.active?'green':'red'}">${c.active?'সক্রিয়':'নিষ্ক্রিয়'}</span></div>
+        <div style="display:flex;align-items:center;gap:6px"><span class="badge ${c.active?'green':'red'}" id="catbadge-${c._id}">${c.active?'সক্রিয়':'নিষ্ক্রিয়'}</span></div>
         <div class="cat-actions">
+          <button class="icon-btn ${c.active?'warn':'edit'}" title="${c.active?'নিষ্ক্রিয় করুন':'সক্রিয় করুন'}" onclick="toggleCat('${c._id}',this)"><i class="fa-solid ${c.active?'fa-toggle-on':'fa-toggle-off'}"></i></button>
           <button class="icon-btn edit" onclick="editCat(${JSON.stringify(c).replace(/"/g,'&quot;')})"><i class="fa-solid fa-pen-to-square"></i></button>
           <button class="icon-btn del" onclick="deleteCat('${c._id}','${c.lbl}')"><i class="fa-solid fa-trash"></i></button>
         </div>
       </div>`).join('');
   } catch(err) { toast('ক্যাটাগরি লোড ব্যর্থ: '+err.message,'error'); }
+}
+
+function toggleCatActive() {
+  const cur=document.getElementById('cActive').value==='true';
+  document.getElementById('cActive').value=String(!cur);
+  document.getElementById('cActiveTrack').className='toggle-track '+(!cur?'on':'');
+  document.getElementById('cActiveLbl').textContent=!cur?'হ্যাঁ':'না';
+}
+
+async function toggleCat(id, btn) {
+  try {
+    const cat = await api('PATCH', `/api/categories/${id}/toggle`);
+    const badge = document.getElementById('catbadge-' + id);
+    if (badge) { badge.className = 'badge ' + (cat.active ? 'green' : 'red'); badge.textContent = cat.active ? 'সক্রিয়' : 'নিষ্ক্রিয়'; }
+    if (btn) { btn.className = 'icon-btn ' + (cat.active ? 'warn' : 'edit'); btn.title = cat.active ? 'নিষ্ক্রিয় করুন' : 'সক্রিয় করুন'; btn.innerHTML = `<i class="fa-solid ${cat.active ? 'fa-toggle-on' : 'fa-toggle-off'}"></i>`; }
+    toast(`"${cat.lbl}" ${cat.active ? 'সক্রিয়' : 'নিষ্ক্রিয়'} করা হয়েছে`, 'success');
+  } catch { toast('আপডেট ব্যর্থ', 'error'); }
 }
 
 function openCatModal(cat=null) {
@@ -1692,6 +1721,10 @@ function openCatModal(cat=null) {
   document.getElementById('cLbl').value=cat?cat.lbl:'';
   document.getElementById('cEm').value=cat?cat.em:'🛒';
   document.getElementById('cOrder').value=cat?cat.order:1;
+  const isActive=cat?cat.active!==false:true;
+  document.getElementById('cActive').value=String(isActive);
+  document.getElementById('cActiveTrack').className='toggle-track '+(isActive?'on':'');
+  document.getElementById('cActiveLbl').textContent=isActive?'হ্যাঁ':'না';
   document.getElementById('catModalTitle').innerHTML=cat?'<i class="fa-solid fa-pen-to-square" style="color:var(--blue)"></i> ক্যাটাগরি সম্পাদনা':'<i class="fa-solid fa-tag" style="color:var(--orange)"></i> নতুন ক্যাটাগরি';
   suggestEmojis(cat?cat.id:'');
   openModal('catModal');
@@ -1816,7 +1849,7 @@ function pickEmoji(em) {
 function editCat(cat) { openCatModal(cat); }
 async function saveCat() {
   const id=document.getElementById('catId').value;
-  const data={id:document.getElementById('cId').value.trim(),lbl:document.getElementById('cLbl').value.trim(),em:document.getElementById('cEm').value.trim()||'🛒',order:parseInt(document.getElementById('cOrder').value)||1};
+  const data={id:document.getElementById('cId').value.trim(),lbl:document.getElementById('cLbl').value.trim(),em:document.getElementById('cEm').value.trim()||'🛒',order:parseInt(document.getElementById('cOrder').value)||1,active:document.getElementById('cActive').value==='true'};
   if (!data.id||!data.lbl) { toast('ID ও লেবেল দিন','error'); return; }
   try {
     if(id) await api('PUT',`/api/categories/${id}`,data); else await api('POST','/api/categories',data);
@@ -2137,8 +2170,15 @@ async function changePassword() {
   } catch(err) { toast('ব্যর্থ: '+err.message,'error'); }
 }
 
-async function seedData() {
-  try { const res=await api('POST','/api/seed'); toast(res.message||'সিড সফল','success'); loadCategories(); }
+async function seedData(force=false) {
+  if(force) {
+    showConfirm('⚠️','সব ক্যাটাগরি ও পণ্য মুছে নতুনভাবে সিড করবেন?','এই কাজটি পূর্বের ডেটা মুছে দেবে।', async()=>{
+      try { const res=await api('POST','/api/seed',{force:true}); toast(res.message||'ফোর্স সিড সফল','success'); loadCategories(); loadProducts(); }
+      catch(err) { toast('সিড ব্যর্থ: '+err.message,'error'); }
+    });
+    return;
+  }
+  try { const res=await api('POST','/api/seed',{}); toast(res.message||'সিড সফল','success'); loadCategories(); }
   catch(err) { toast('সিড ব্যর্থ: '+err.message,'error'); }
 }
 

@@ -481,6 +481,19 @@ app.delete('/api/categories/:id', authMiddleware, async (req, res) => {
   }
 });
 
+// Toggle category active/inactive
+app.patch('/api/categories/:id/toggle', authMiddleware, async (req, res) => {
+  try {
+    const cat = await Category.findById(req.params.id);
+    if (!cat) return res.status(404).json({ error: 'Category not found' });
+    cat.active = !cat.active;
+    await cat.save();
+    res.json(cat);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ─── ORDERS ───
 app.post('/api/orders', async (req, res) => {
   try {
@@ -709,22 +722,74 @@ app.get('/api/dashboard/stats', authMiddleware, async (req, res) => {
 // ─── SEED INITIAL DATA ───
 app.post('/api/seed', authMiddleware, async (req, res) => {
   try {
-    // Seed categories if empty
+    const { force } = req.body;
+    // Seed categories if empty (or forced)
     const catCount = await Category.countDocuments();
-    if (catCount === 0) {
+    if (catCount === 0 || force) {
+      if (force) await Category.deleteMany({});
       await Category.insertMany([
-        { id: 'মধু', lbl: 'মধু', em: '🍯', order: 1 },
-        { id: 'তৈল', lbl: 'তৈল', em: '🫙', order: 2 },
-        { id: 'দই', lbl: 'দই', em: '🥛', order: 3 },
-        { id: 'রসমালাই', lbl: 'রসমালাই', em: '🍮', order: 4 },
-        { id: 'গুড়', lbl: 'গুড়/মিঠাই', em: '🟫', order: 5 },
-        { id: 'মিষ্টি', lbl: 'মিষ্টি', em: '🍬', order: 6 },
+        { id: 'মিষ্টি',   lbl: 'মিষ্টি',   em: '🍬', order: 1, active: true },
+        { id: 'দই',       lbl: 'দই',       em: '🥛', order: 2, active: true },
+        { id: 'মিঠাই',   lbl: 'মিঠাই',   em: '🍮', order: 3, active: true },
+        { id: 'তৈল',     lbl: 'তৈল',     em: '🫙', order: 4, active: true },
+        { id: 'বোরহানী', lbl: 'বোরহানী', em: '🥤', order: 5, active: true },
+        { id: 'রশমালাই', lbl: 'রশমালাই', em: '🍨', order: 6, active: true },
       ]);
     }
 
-    // Seed hero if empty
+    // Seed products if empty (or forced)
+    const prodCount = await Product.countDocuments();
+    if (prodCount === 0 || force) {
+      if (force) await Product.deleteMany({});
+      await Product.insertMany([
+        // ── মিষ্টি (5) ──
+        { cat: 'মিষ্টি', nm: 'রসগোল্লা', sub: 'তাজা ছানার রসগোল্লা', em: '🍬', bg: '#e8b4d0', best: true,  active: true, phone: '01712345678', variants: [{ lbl: '৫০০ গ্রাম', p: 150, op: 180, disc: '17%' }, { lbl: '১ কেজি', p: 280, op: 340, disc: '18%' }], order: 1 },
+        { cat: 'মিষ্টি', nm: 'সন্দেশ',    sub: 'খাঁটি ছানার সন্দেশ',  em: '🍬', bg: '#f5d08a', best: false, active: true, phone: '01712345678', variants: [{ lbl: '২৫০ গ্রাম', p: 120, op: 150, disc: '20%' }, { lbl: '৫০০ গ্রাম', p: 230, op: 280, disc: '18%' }], order: 2 },
+        { cat: 'মিষ্টি', nm: 'কালোজাম',   sub: 'গাঢ় রঙের কালোজাম',   em: '🍬', bg: '#6b3a6b', best: false, active: true, phone: '01712345678', variants: [{ lbl: '৫০০ গ্রাম', p: 160, op: 200, disc: '20%' }], order: 3 },
+        { cat: 'মিষ্টি', nm: 'চমচম',      sub: 'ঐতিহ্যবাহী মিষ্টি',  em: '🍬', bg: '#f0c080', best: true,  active: true, phone: '01712345678', variants: [{ lbl: '৫০০ গ্রাম', p: 200, op: 250, disc: '20%' }, { lbl: '১ কেজি', p: 380, op: 460, disc: '17%' }], order: 4 },
+        { cat: 'মিষ্টি', nm: 'লাড্ডু',    sub: 'বেসনের খাঁটি লাড্ডু', em: '🍬', bg: '#e8a050', best: false, active: true, phone: '01712345678', variants: [{ lbl: '২৫০ গ্রাম', p: 100, op: 130, disc: '23%' }, { lbl: '৫০০ গ্রাম', p: 190, op: 240, disc: '21%' }], order: 5 },
+
+        // ── দই (5) ──
+        { cat: 'দই', nm: 'মিষ্টি দই',     sub: 'মাটির পাতিলে তৈরি',   em: '🥛', bg: '#fffbe6', best: true,  active: true, phone: '01712345678', variants: [{ lbl: '২৫০ গ্রাম', p: 60,  op: 80,  disc: '25%' }, { lbl: '৫০০ গ্রাম', p: 110, op: 140, disc: '21%' }], order: 1 },
+        { cat: 'দই', nm: 'টক দই',          sub: 'প্রাকৃতিক টক দই',     em: '🥛', bg: '#f0f8ff', best: false, active: true, phone: '01712345678', variants: [{ lbl: '২৫০ গ্রাম', p: 50,  op: 70,  disc: '29%' }, { lbl: '৫০০ গ্রাম', p: 90,  op: 120, disc: '25%' }], order: 2 },
+        { cat: 'দই', nm: 'ঘরে তৈরি দই',   sub: 'সরিষার দই বিশেষ',     em: '🥛', bg: '#fef9e7', best: false, active: true, phone: '01712345678', variants: [{ lbl: '৫০০ গ্রাম', p: 100, op: 130, disc: '23%' }], order: 3 },
+        { cat: 'দই', nm: 'ভাঁপা দই',      sub: 'বগুড়ার বিখ্যাত দই',   em: '🥛', bg: '#fdf2e9', best: true,  active: true, phone: '01712345678', variants: [{ lbl: '২৫০ গ্রাম', p: 80,  op: 100, disc: '20%' }, { lbl: '৫০০ গ্রাম', p: 150, op: 190, disc: '21%' }], order: 4 },
+        { cat: 'দই', nm: 'ফ্রুট দই',      sub: 'মৌসুমি ফলের দই',       em: '🥛', bg: '#e8f8f5', best: false, active: true, phone: '01712345678', variants: [{ lbl: '২৫০ গ্রাম', p: 70,  op: 90,  disc: '22%' }], order: 5 },
+
+        // ── মিঠাই (5) ──
+        { cat: 'মিঠাই', nm: 'খেজুর গুড়',   sub: 'খাঁটি খেজুর গুড়',   em: '🍮', bg: '#8b4513', best: true,  active: true, phone: '01712345678', variants: [{ lbl: '৫০০ গ্রাম', p: 120, op: 150, disc: '20%' }, { lbl: '১ কেজি', p: 220, op: 280, disc: '21%' }], order: 1 },
+        { cat: 'মিঠাই', nm: 'আখের গুড়',    sub: 'প্রাকৃতিক আখের গুড়', em: '🍮', bg: '#a0522d', best: false, active: true, phone: '01712345678', variants: [{ lbl: '৫০০ গ্রাম', p: 90,  op: 120, disc: '25%' }, { lbl: '১ কেজি', p: 170, op: 220, disc: '23%' }], order: 2 },
+        { cat: 'মিঠাই', nm: 'তালের মিঠাই', sub: 'তালের রস থেকে তৈরি',  em: '🍮', bg: '#cd853f', best: false, active: true, phone: '01712345678', variants: [{ lbl: '২৫০ গ্রাম', p: 80,  op: 100, disc: '20%' }], order: 3 },
+        { cat: 'মিঠাই', nm: 'নলেন গুড়',   sub: 'শীতকালীন বিশেষ গুড়', em: '🍮', bg: '#b8860b', best: true,  active: true, phone: '01712345678', variants: [{ lbl: '৫০০ গ্রাম', p: 150, op: 200, disc: '25%' }, { lbl: '১ কেজি', p: 280, op: 370, disc: '24%' }], order: 4 },
+        { cat: 'মিঠাই', nm: 'পাটালি গুড়', sub: 'শক্ত পাটালি গুড়',    em: '🍮', bg: '#d2691e', best: false, active: true, phone: '01712345678', variants: [{ lbl: '৫০০ গ্রাম', p: 130, op: 170, disc: '24%' }], order: 5 },
+
+        // ── তৈল (5) ──
+        { cat: 'তৈল', nm: 'সরিষার তৈল',   sub: 'ঘানি ভাঙা খাঁটি সরিষার তৈল', em: '🫙', bg: '#ffd700', best: true,  active: true, phone: '01712345678', variants: [{ lbl: '৫০০ মি.লি.', p: 160, op: 200, disc: '20%' }, { lbl: '১ লিটার', p: 300, op: 380, disc: '21%' }], order: 1 },
+        { cat: 'তৈল', nm: 'নারিকেল তৈল', sub: 'ভার্জিন নারিকেল তৈল',         em: '🫙', bg: '#f5f5dc', best: false, active: true, phone: '01712345678', variants: [{ lbl: '২৫০ মি.লি.', p: 180, op: 220, disc: '18%' }, { lbl: '৫০০ মি.লি.', p: 340, op: 420, disc: '19%' }], order: 2 },
+        { cat: 'তৈল', nm: 'কালোজিরা তৈল', sub: 'বিশুদ্ধ কালোজিরার তৈল',     em: '🫙', bg: '#2f2f2f', best: true,  active: true, phone: '01712345678', variants: [{ lbl: '১০০ মি.লি.', p: 150, op: 190, disc: '21%' }, { lbl: '২৫০ মি.লি.', p: 340, op: 430, disc: '21%' }], order: 3 },
+        { cat: 'তৈল', nm: 'তিলের তৈল',   sub: 'তিল ঘানি থেকে তৈরি',          em: '🫙', bg: '#c8a55a', best: false, active: true, phone: '01712345678', variants: [{ lbl: '২৫০ মি.লি.', p: 200, op: 250, disc: '20%' }], order: 4 },
+        { cat: 'তৈল', nm: 'আদার তৈল',    sub: 'আদা থেকে প্রস্তুত',            em: '🫙', bg: '#c8a040', best: false, active: true, phone: '01712345678', variants: [{ lbl: '১০০ মি.লি.', p: 120, op: 150, disc: '20%' }], order: 5 },
+
+        // ── বোরহানী (5) ──
+        { cat: 'বোরহানী', nm: 'পুদিনা বোরহানী',   sub: 'তাজা পুদিনা পাতার বোরহানী', em: '🥤', bg: '#2ecc71', best: true,  active: true, phone: '01712345678', variants: [{ lbl: '২৫০ মি.লি.', p: 50, op: 70, disc: '29%' }, { lbl: '৫০০ মি.লি.', p: 90, op: 120, disc: '25%' }], order: 1 },
+        { cat: 'বোরহানী', nm: 'ধনিয়া বোরহানী',   sub: 'ধনিয়া পাতায় তৈরি বোরহানী',  em: '🥤', bg: '#27ae60', best: false, active: true, phone: '01712345678', variants: [{ lbl: '২৫০ মি.লি.', p: 50, op: 70, disc: '29%' }], order: 2 },
+        { cat: 'বোরহানী', nm: 'মশলা বোরহানী',     sub: 'বিশেষ মশলার মিশ্রণে',          em: '🥤', bg: '#1abc9c', best: false, active: true, phone: '01712345678', variants: [{ lbl: '৫০০ মি.লি.', p: 100, op: 130, disc: '23%' }, { lbl: '১ লিটার', p: 185, op: 240, disc: '23%' }], order: 3 },
+        { cat: 'বোরহানী', nm: 'রোজ বোরহানী',      sub: 'গোলাপজলের সুগন্ধে',           em: '🥤', bg: '#ff69b4', best: true,  active: true, phone: '01712345678', variants: [{ lbl: '২৫০ মি.লি.', p: 60, op: 80, disc: '25%' }], order: 4 },
+        { cat: 'বোরহানী', nm: 'জিরা বোরহানী',     sub: 'জিরার স্বাদে ভরপুর',            em: '🥤', bg: '#16a085', best: false, active: true, phone: '01712345678', variants: [{ lbl: '২৫০ মি.লি.', p: 45, op: 60, disc: '25%' }, { lbl: '৫০০ মি.লি.', p: 85, op: 110, disc: '23%' }], order: 5 },
+
+        // ── রশমালাই (5) ──
+        { cat: 'রশমালাই', nm: 'ক্লাসিক রশমালাই',  sub: 'ঘন দুধের ক্লাসিক রশমালাই', em: '🍨', bg: '#fff0e6', best: true,  active: true, phone: '01712345678', variants: [{ lbl: '৫০০ গ্রাম', p: 250, op: 300, disc: '17%' }, { lbl: '১ কেজি', p: 480, op: 580, disc: '17%' }], order: 1 },
+        { cat: 'রশমালাই', nm: 'কেসার রশমালাই',    sub: 'জাফরান মিশ্রিত বিশেষ',      em: '🍨', bg: '#ffeaa7', best: false, active: true, phone: '01712345678', variants: [{ lbl: '৫০০ গ্রাম', p: 320, op: 380, disc: '16%' }], order: 2 },
+        { cat: 'রশমালাই', nm: 'চকলেট রশমালাই',   sub: 'চকলেট ফ্লেভারের রশমালাই', em: '🍨', bg: '#d35400', best: false, active: true, phone: '01712345678', variants: [{ lbl: '৫০০ গ্রাম', p: 300, op: 360, disc: '17%' }], order: 3 },
+        { cat: 'রশমালাই', nm: 'এলাচি রশমালাই',   sub: 'এলাচের সুগন্ধে ভরা',        em: '🍨', bg: '#f8e6ff', best: true,  active: true, phone: '01712345678', variants: [{ lbl: '২৫০ গ্রাম', p: 140, op: 170, disc: '18%' }, { lbl: '৫০০ গ্রাম', p: 260, op: 320, disc: '19%' }], order: 4 },
+        { cat: 'রশমালাই', nm: 'মিনি রশমালাই',    sub: 'ছোট ছোট মজাদার টুকরো',      em: '🍨', bg: '#ffeef8', best: false, active: true, phone: '01712345678', variants: [{ lbl: '২৫০ গ্রাম', p: 120, op: 150, disc: '20%' }, { lbl: '৫০০ গ্রাম', p: 220, op: 280, disc: '21%' }], order: 5 },
+      ]);
+    }
+
+    // Seed hero if empty (or forced)
     const heroCount = await Hero.countDocuments();
-    if (heroCount === 0) {
+    if (heroCount === 0 || force) {
+      if (force) await Hero.deleteMany({});
       await Hero.insertMany([
         { title: 'গ্রামীণ সতেজতা ও স্বাদের আসল স্বাদ', subtitle: 'বিশুদ্ধ গ্রামীণ পণ্য এখন আপনার দরজায়', gradient: 's1', order: 1 },
         { title: 'বিশুদ্ধ সরিষার মধু সরাসরি মৌমাছির চাকা থেকে', subtitle: 'প্রকৃতির সেরা উপহার আপনার দোরগোড়ায়', gradient: 's2', order: 2 },
